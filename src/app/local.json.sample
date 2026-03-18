@@ -1,0 +1,5 @@
+{
+  "proxy": {
+    "https://kwtsms-hubspot-backend.example.com": "http://localhost:3001"
+  }
+}

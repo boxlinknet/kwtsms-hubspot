@@ -1,0 +1,35 @@
+{
+  "uid": "kwtsms_hubspot_app",
+  "type": "app",
+  "config": {
+    "name": "kwtSMS for HubSpot",
+    "description": "Send SMS notifications to your HubSpot contacts via kwtSMS gateway. Supports Arabic and English, workflow automation, and SMS delivery logging.",
+    "distribution": "marketplace",
+    "auth": {
+      "type": "oauth",
+      "redirectUrls": ["http://localhost:3001/api/oauth/callback"],
+      "requiredScopes": [
+        "oauth",
+        "crm.objects.contacts.read",
+        "crm.objects.contacts.write",
+        "crm.objects.deals.read"
+      ],
+      "optionalScopes": [
+        "crm.objects.companies.read",
+        "crm.objects.tickets.read"
+      ],
+      "conditionallyRequiredScopes": []
+    },
+    "permittedUrls": {
+      "fetch": ["https://www.kwtsms.com"],
+      "iframe": [],
+      "img": ["https://www.kwtsms.com"]
+    },
+    "support": {
+      "supportEmail": "support@kwtsms.com",
+      "documentationUrl": "https://www.kwtsms.com/integrations.html",
+      "supportUrl": "https://www.kwtsms.com/support.html",
+      "supportPhone": "+96522282227"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "uid": "kwtsms_sms_panel",
+  "type": "card",
+  "config": {
+    "name": "kwtSMS - SMS Panel",
+    "location": "crm.record.tab",
+    "entrypoint": "/app/extensions/sms-panel/SmsPanel.tsx",
+    "objectTypes": ["contacts"]
+  }
+}
