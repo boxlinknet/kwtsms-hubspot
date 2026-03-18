@@ -1,0 +1,16 @@
+{
+  "name": "kwtsms-hubspot",
+  "version": "1.0.0",
+  "description": "kwtSMS SMS gateway integration for HubSpot CRM",
+  "private": true,
+  "workspaces": [
+    "backend"
+  ],
+  "scripts": {
+    "dev": "cd backend && npm run dev",
+    "start": "cd backend && npm start",
+    "test": "cd backend && npm test",
+    "hs:dev": "hs project dev",
+    "hs:upload": "hs project upload"
+  }
+}
