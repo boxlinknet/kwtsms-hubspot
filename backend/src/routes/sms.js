@@ -8,7 +8,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { send, testGateway } = require('../services/sms-engine');
+const { send } = require('../services/sms-engine');
 const { getSettings } = require('../models/settings');
 
 /**
@@ -16,25 +16,29 @@ const { getSettings } = require('../models/settings');
  * Manual send from admin panel or CRM card.
  * Body: { phone, message, senderId?, contactId?, source? }
  */
-router.post('/send', async (req, res) => {
-  const { phone, message, senderId, contactId, source } = req.body;
+router.post('/send', async (req, res, next) => {
+  try {
+    const { phone, message, senderId, contactId, source } = req.body;
 
-  if (!phone) {
-    return res.status(400).json({ error: 'Phone number is required' });
-  }
-  if (!message) {
-    return res.status(400).json({ error: 'Message is required' });
-  }
+    if (!phone) {
+      return res.status(400).json({ error: 'Phone number is required' });
+    }
+    if (!message) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
 
-  const result = await send(req.portalId, phone, message, senderId, {
-    source: source || 'manual',
-    contactId
-  });
+    const result = await send(req.portalId, phone, message, senderId, {
+      source: source || 'manual',
+      contactId
+    });
 
-  if (result.success) {
-    res.json(result);
-  } else {
-    res.status(400).json(result);
+    if (result.success) {
+      res.json(result);
+    } else {
+      res.status(400).json(result);
+    }
+  } catch (err) {
+    next(err);
   }
 });
 
@@ -43,42 +47,45 @@ router.post('/send', async (req, res) => {
  * Send a test message (always with test=1 regardless of settings).
  * Body: { phone, message }
  */
-router.post('/test', async (req, res) => {
-  const { phone, message } = req.body;
+router.post('/test', async (req, res, next) => {
+  try {
+    const { phone, message } = req.body;
 
-  if (!phone) {
-    return res.status(400).json({ error: 'Phone number is required' });
+    if (!phone) {
+      return res.status(400).json({ error: 'Phone number is required' });
+    }
+
+    const settings = getSettings(req.portalId);
+    if (!settings || !settings.kwtsms_username) {
+      return res.status(400).json({ error: 'Gateway not configured' });
+    }
+
+    const { KwtSMS } = require('kwtsms');
+    const { cleanMessage } = require('../kwtsms/clean');
+    const { verifyPhone } = require('../kwtsms/verify');
+
+    const verification = verifyPhone(phone);
+    if (!verification.valid) {
+      return res.status(400).json({ error: verification.reason });
+    }
+
+    const sms = new KwtSMS(settings.kwtsms_username, settings.kwtsms_password, {
+      senderId: settings.sender_id,
+      testMode: true,
+      logFile: ''
+    });
+
+    const cleaned = cleanMessage(message || 'kwtSMS HubSpot integration test message');
+    const result = await sms.send(verification.normalized, cleaned);
+
+    res.json({
+      success: result.result === 'OK',
+      testMode: true,
+      result
+    });
+  } catch (err) {
+    next(err);
   }
-
-  const settings = getSettings(req.portalId);
-  if (!settings || !settings.kwtsms_username) {
-    return res.status(400).json({ error: 'Gateway not configured' });
-  }
-
-  // Temporarily force test mode for this send
-  const { KwtSMS } = require('kwtsms');
-  const { cleanMessage } = require('../kwtsms/clean');
-  const { verifyPhone } = require('../kwtsms/verify');
-
-  const verification = verifyPhone(phone);
-  if (!verification.valid) {
-    return res.status(400).json({ error: verification.reason });
-  }
-
-  const sms = new KwtSMS(settings.kwtsms_username, settings.kwtsms_password, {
-    senderId: settings.sender_id,
-    testMode: true,
-    logFile: ''
-  });
-
-  const cleaned = cleanMessage(message || 'kwtSMS HubSpot integration test message');
-  const result = await sms.send(verification.normalized, cleaned);
-
-  res.json({
-    success: result.result === 'OK',
-    testMode: true,
-    result
-  });
 });
 
 module.exports = router;

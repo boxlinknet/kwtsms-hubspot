@@ -1,15 +1,21 @@
 /**
  * Workflow action route: handles HubSpot workflow POST callbacks.
  * This is the actionUrl that HubSpot calls when a "Send SMS" workflow step executes.
+ * Protected by HubSpot signature verification.
  *
  * Related files:
  *   - ../services/sms-engine.js: send orchestrator
+ *   - ../middleware/auth.js: HubSpot signature verification
  *   - ../../src/app/workflow-actions/workflow-actions-hsmeta.json: action definition
  */
 
 const express = require('express');
 const router = express.Router();
 const { send } = require('../services/sms-engine');
+const { verifyHubSpotSignature } = require('../middleware/auth');
+
+// Apply HubSpot signature verification to all workflow action routes
+router.use(verifyHubSpotSignature);
 
 /**
  * POST /api/workflow-action/send-sms
@@ -62,7 +68,6 @@ router.post('/send-sms', async (req, res) => {
     });
 
     // Return result to HubSpot workflow
-    // HubSpot expects 200 with outputFields for success
     res.status(200).json({
       outputFields: {
         status: result.success ? 'sent' : 'failed',
@@ -73,7 +78,6 @@ router.post('/send-sms', async (req, res) => {
     });
   } catch (err) {
     console.error('Workflow action error:', err.message);
-    // Return 200 with error info (HubSpot retries on non-200)
     res.status(200).json({
       outputFields: { status: 'error', error: 'Internal error processing SMS' }
     });

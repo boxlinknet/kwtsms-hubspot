@@ -23,13 +23,45 @@ const { startDailySync } = require('./jobs/daily-sync');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3001';
 
 // Initialize database (runs migrations)
 getDatabase();
 
-// Global middleware
-app.use(helmet({ contentSecurityPolicy: false })); // CSP off for admin inline scripts
-app.use(cors());
+// CORS: restrict to known origins
+const allowedOrigins = [
+  BASE_URL,
+  'https://app.hubspot.com',
+  'https://app-eu1.hubspot.com'
+];
+if (process.env.NODE_ENV !== 'production') {
+  allowedOrigins.push('http://localhost:3001', 'http://localhost:3000');
+}
+
+app.use(cors({
+  origin(origin, callback) {
+    // Allow requests with no origin (server-to-server, curl, mobile)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.some(o => origin.startsWith(o))) return callback(null, true);
+    callback(null, false);
+  },
+  credentials: true
+}));
+
+// Helmet with CSP allowing admin inline scripts only on /admin path
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "https://www.kwtsms.com"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'"]
+    }
+  }
+}));
+
 app.use(express.json({ limit: '1mb' }));
 app.use(sanitizeMiddleware);
 
@@ -44,10 +76,10 @@ app.get('/api/health', (req, res) => {
 // OAuth routes (no portal auth required, handled by OAuth flow)
 app.use('/api/oauth', require('./routes/oauth'));
 
-// Workflow action route (auth comes from HubSpot payload, not our middleware)
+// Workflow action route (auth via HubSpot signature verification)
 app.use('/api/workflow-action', require('./routes/workflow-action'));
 
-// Protected routes (portal ID in URL path)
+// Protected routes (portal ID in URL path, OAuth token check in production)
 app.use('/api/settings/:portalId', requirePortalId, require('./routes/settings'));
 app.use('/api/dashboard/:portalId', requirePortalId, require('./routes/dashboard'));
 app.use('/api/logs/:portalId', requirePortalId, require('./routes/logs'));
