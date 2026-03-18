@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>kwtSMS for HubSpot - Admin</title>
+  <style>
+    :root {
+      --primary: #FFA200;
+      --accent: #79CCF2;
+      --bg: #FFFFFF;
+      --text: #434345;
+      --border: #CED4DA;
+      --success: #28a745;
+      --danger: #dc3545;
+      --warning: #ffc107;
+      --muted: #6c757d;
+      --light-bg: #f8f9fa;
+      --radius: 4px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Lato', Helvetica, Arial, sans-serif;
+      color: var(--text);
+      background: var(--light-bg);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
+    .header {
+      background: var(--bg);
+      border-bottom: 3px solid var(--primary);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header img { height: 40px; }
+    .header h1 { font-size: 20px; color: var(--text); }
+    .tabs {
+      display: flex;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+    }
+    .tab {
+      padding: 12px 20px;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      color: var(--muted);
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .content { max-width: 960px; margin: 24px auto; padding: 0 24px; }
+    .panel {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .panel h2 { font-size: 18px; margin-bottom: 16px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 20px; }
+    .stat-card {
+      background: var(--light-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      text-align: center;
+    }
+    .stat-card .value { font-size: 28px; font-weight: 700; color: var(--primary); }
+    .stat-card .label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-success { background: #d4edda; color: #155724; }
+    .badge-danger { background: #f8d7da; color: #721c24; }
+    .badge-warning { background: #fff3cd; color: #856404; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 14px; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-family: inherit;
+    }
+    .form-row { display: flex; gap: 16px; }
+    .form-row .form-group { flex: 1; }
+    .toggle-group { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .toggle {
+      position: relative; width: 44px; height: 24px;
+      background: var(--border); border-radius: 12px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .toggle.on { background: var(--success); }
+    .toggle::after {
+      content: ''; position: absolute; top: 2px; left: 2px;
+      width: 20px; height: 20px; background: white;
+      border-radius: 50%; transition: transform 0.2s;
+    }
+    .toggle.on::after { transform: translateX(20px); }
+    .btn {
+      padding: 8px 20px; border: none; border-radius: var(--radius);
+      font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-secondary { background: var(--accent); color: white; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-sm { padding: 4px 12px; font-size: 12px; }
+    .log-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .log-table th, .log-table td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+    .log-table th { background: var(--light-bg); font-weight: 600; }
+    .log-table tr:hover { background: var(--light-bg); }
+    .alert { padding: 12px 16px; border-radius: var(--radius); margin-bottom: 16px; font-size: 14px; }
+    .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .help-step { display: flex; gap: 12px; margin-bottom: 16px; }
+    .help-step .step-num {
+      min-width: 32px; height: 32px; background: var(--primary); color: white;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 14px;
+    }
+    .help-step .step-text { flex: 1; }
+    .help-step a { color: var(--accent); }
+    .hidden { display: none; }
+    #alert-container { position: fixed; top: 16px; right: 16px; z-index: 100; max-width: 400px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="https://www.kwtsms.com/images/kwtsms_logo_60.png" alt="kwtSMS">
+    <h1>kwtSMS for HubSpot</h1>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="dashboard">Dashboard</div>
+    <div class="tab" data-tab="settings">Settings</div>
+    <div class="tab" data-tab="logs">Logs</div>
+    <div class="tab" data-tab="help">Help</div>
+  </div>
+
+  <div id="alert-container"></div>
+
+  <div class="content">
+    <!-- DASHBOARD -->
+    <div id="tab-dashboard" class="tab-content">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="value" id="stat-balance">0</div><div class="label">Balance</div></div>
+        <div class="stat-card"><div class="value" id="stat-today">0</div><div class="label">Sent Today</div></div>
+        <div class="stat-card"><div class="value" id="stat-week">0</div><div class="label">This Week</div></div>
+        <div class="stat-card"><div class="value" id="stat-month">0</div><div class="label">This Month</div></div>
+      </div>
+      <div class="panel">
+        <h2>Gateway Status</h2>
+        <div id="gateway-badges" style="display:flex;gap:8px;margin-bottom:12px"></div>
+        <p><strong>Sender ID:</strong> <span id="dash-senderid"></span></p>
+        <p><strong>Last Sync:</strong> <span id="dash-lastsync"></span></p>
+      </div>
+      <div class="panel">
+        <h2>Recent Activity</h2>
+        <table class="log-table">
+          <thead><tr><th>Time</th><th>Phone</th><th>Status</th><th>Source</th></tr></thead>
+          <tbody id="recent-activity"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="tab-settings" class="tab-content hidden">
+      <div class="panel">
+        <h2>General Settings</h2>
+        <div class="toggle-group"><div class="toggle" id="toggle-enabled" onclick="toggleSetting('gateway_enabled')"></div><span>Gateway Enabled</span></div>
+        <div class="toggle-group"><div class="toggle on" id="toggle-testmode" onclick="toggleSetting('test_mode')"></div><span>Test Mode</span></div>
+        <div class="toggle-group"><div class="toggle" id="toggle-debug" onclick="toggleSetting('debug_logging')"></div><span>Debug Logging</span></div>
+      </div>
+      <div class="panel">
+        <h2>Gateway Configuration</h2>
+        <div class="form-row">
+          <div class="form-group"><label>API Username</label><input type="text" id="input-username" placeholder="Your kwtSMS API username"></div>
+          <div class="form-group"><label>API Password</label><input type="password" id="input-password" placeholder="Your kwtSMS API password"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:16px">
+          <button class="btn btn-secondary" onclick="testConnection()">Test Connection</button>
+          <button class="btn btn-primary" onclick="saveCredentials()">Save &amp; Connect</button>
+        </div>
+        <div id="connection-result"></div>
+      </div>
+      <div class="panel">
+        <h2>Sender ID</h2>
+        <div class="form-group"><label>Active Sender ID</label><select id="select-senderid"></select></div>
+        <button class="btn btn-primary btn-sm" onclick="saveSenderId()">Save Sender ID</button>
+      </div>
+    </div>
+
+    <!-- LOGS -->
+    <div id="tab-logs" class="tab-content hidden">
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <h2>SMS Logs</h2>
+          <button class="btn btn-danger btn-sm" onclick="clearLogs()">Clear All</button>
+        </div>
+        <table class="log-table">
+          <thead><tr><th>Time</th><th>Phone</th><th>Message</th><th>Status</th><th>Credits</th></tr></thead>
+          <tbody id="sms-logs"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- HELP -->
+    <div id="tab-help" class="tab-content hidden">
+      <div class="panel">
+        <h2>Getting Started</h2>
+        <div class="help-step"><div class="step-num">1</div><div class="step-text">Sign up for a kwtSMS account at <a href="https://www.kwtsms.com" target="_blank" rel="noopener">kwtsms.com</a></div></div>
+        <div class="help-step"><div class="step-num">2</div><div class="step-text">Get your <strong>API credentials</strong> from your kwtSMS account settings (not your mobile number)</div></div>
+        <div class="help-step"><div class="step-num">3</div><div class="step-text">Go to the <strong>Settings</strong> tab above and enter your API username and password</div></div>
+        <div class="help-step"><div class="step-num">4</div><div class="step-text">Click <strong>Test Connection</strong> to verify your credentials work</div></div>
+        <div class="help-step"><div class="step-num">5</div><div class="step-text">Select your <strong>Sender ID</strong> from the dropdown (must be pre-approved by kwtSMS)</div></div>
+        <div class="help-step"><div class="step-num">6</div><div class="step-text">Enable the gateway and create a <strong>HubSpot workflow</strong> with the "Send SMS via kwtSMS" action</div></div>
+      </div>
+      <div class="panel">
+        <h2>Important Notes</h2>
+        <ul style="padding-left:20px">
+          <li><strong>KWT-SMS</strong> is a shared test sender. Register your own Sender ID for production use.</li>
+          <li>Arabic messages use 70 characters per page (vs 160 for English).</li>
+          <li>Test mode sends hit the real API but messages are not delivered to handsets.</li>
+          <li>Delete test messages from your kwtSMS queue to recover held credits.</li>
+          <li>There is a 15-second minimum between messages to the same number.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h2>Support</h2>
+        <ul style="padding-left:20px">
+          <li>Support Center: <a href="https://www.kwtsms.com/support.html" target="_blank" rel="noopener">kwtsms.com/support.html</a></li>
+          <li>FAQ: <a href="https://www.kwtsms.com/faq_all.php" target="_blank" rel="noopener">kwtsms.com/faq_all.php</a></li>
+          <li>Sender ID Help: <a href="https://www.kwtsms.com/sender-id-help.html" target="_blank" rel="noopener">kwtsms.com/sender-id-help.html</a></li>
+          <li>Developer Docs: <a href="https://www.kwtsms.com/developers.html" target="_blank" rel="noopener">kwtsms.com/developers.html</a></li>
+          <li>Email: <a href="mailto:support@kwtsms.com">support@kwtsms.com</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const PORTAL_ID = params.get('portalId') || 'default';
+  const API_BASE = window.location.origin;
+  let settings = {};
+
+  // Safe text helper: escapes HTML entities to prevent XSS
+  function esc(str) {
+    const d = document.createElement('div');
+    d.textContent = String(str || '');
+    return d.textContent;
+  }
+
+  // Safe DOM element creation
+  function el(tag, attrs, children) {
+    const e = document.createElement(tag);
+    if (attrs) Object.entries(attrs).forEach(([k, v]) => {
+      if (k === 'className') e.className = v;
+      else if (k === 'textContent') e.textContent = v;
+      else e.setAttribute(k, v);
+    });
+    if (children) children.forEach(c => { if (c) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return e;
+  }
+
+  // Tab switching
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+      tab.classList.add('active');
+      document.getElementById('tab-' + tab.dataset.tab).classList.remove('hidden');
+      if (tab.dataset.tab === 'dashboard') loadDashboard();
+      if (tab.dataset.tab === 'logs') loadLogs();
+    });
+  });
+
+  function showAlert(type, message) {
+    const container = document.getElementById('alert-container');
+    const div = el('div', { className: 'alert alert-' + type, textContent: message });
+    container.appendChild(div);
+    setTimeout(() => div.remove(), 4000);
+  }
+
+  async function api(path, options = {}) {
+    const res = await fetch(API_BASE + path, {
+      headers: { 'Content-Type': 'application/json', ...options.headers },
+      ...options
+    });
+    return res.json();
+  }
+
+  // Dashboard
+  async function loadDashboard() {
+    const data = await api('/api/dashboard/' + PORTAL_ID);
+    const gw = data.gateway || {};
+
+    document.getElementById('stat-balance').textContent = gw.balance || 0;
+    document.getElementById('stat-today').textContent = data.stats?.today?.totalSent || 0;
+    document.getElementById('stat-week').textContent = data.stats?.week?.totalSent || 0;
+    document.getElementById('stat-month').textContent = data.stats?.month?.totalSent || 0;
+
+    // Gateway badges (safe DOM creation)
+    const badges = document.getElementById('gateway-badges');
+    badges.replaceChildren(
+      el('span', { className: 'badge ' + (gw.connected ? 'badge-success' : 'badge-danger'), textContent: gw.connected ? 'Connected' : 'Disconnected' }),
+      el('span', { className: 'badge ' + (gw.enabled ? 'badge-success' : 'badge-danger'), textContent: gw.enabled ? 'Enabled' : 'Disabled' }),
+      el('span', { className: 'badge ' + (gw.testMode ? 'badge-warning' : 'badge-success'), textContent: gw.testMode ? 'Test Mode' : 'Live' })
+    );
+
+    document.getElementById('dash-senderid').textContent = gw.senderId || 'KWT-SMS';
+    document.getElementById('dash-lastsync').textContent = gw.lastSync ? new Date(gw.lastSync).toLocaleString() : 'Never';
+
+    // Recent activity (safe DOM)
+    const tbody = document.getElementById('recent-activity');
+    tbody.replaceChildren();
+    if (data.recentActivity && data.recentActivity.length > 0) {
+      data.recentActivity.forEach(a => {
+        const statusClass = a.status === 'sent' ? 'badge-success' : a.status === 'failed' ? 'badge-danger' : 'badge-warning';
+        tbody.appendChild(el('tr', {}, [
+          el('td', { textContent: new Date(a.createdAt).toLocaleString() }),
+          el('td', { textContent: a.phone }),
+          el('td', {}, [el('span', { className: 'badge ' + statusClass, textContent: a.status })]),
+          el('td', { textContent: a.source })
+        ]));
+      });
+    } else {
+      tbody.appendChild(el('tr', {}, [el('td', { colspan: '4', style: 'text-align:center;color:var(--muted)', textContent: 'No recent activity' })]));
+    }
+  }
+
+  // Settings
+  async function loadSettings() {
+    settings = await api('/api/settings/' + PORTAL_ID);
+    document.getElementById('toggle-enabled').className = 'toggle' + (settings.gateway_enabled ? ' on' : '');
+    document.getElementById('toggle-testmode').className = 'toggle' + (settings.test_mode ? ' on' : '');
+    document.getElementById('toggle-debug').className = 'toggle' + (settings.debug_logging ? ' on' : '');
+
+    const select = document.getElementById('select-senderid');
+    select.replaceChildren();
+    const ids = settings.available_sender_ids || [];
+    if (ids.length > 0) {
+      ids.forEach(id => {
+        const opt = el('option', { value: id, textContent: id });
+        if (id === settings.sender_id) opt.selected = true;
+        select.appendChild(opt);
+      });
+    } else {
+      select.appendChild(el('option', { value: 'KWT-SMS', textContent: 'KWT-SMS (test only)' }));
+    }
+  }
+
+  async function toggleSetting(key) {
+    settings[key] = !settings[key];
+    await api('/api/settings/' + PORTAL_ID, { method: 'POST', body: JSON.stringify({ [key]: settings[key] }) });
+    loadSettings();
+    showAlert('success', key.replace(/_/g, ' ') + ' updated');
+  }
+
+  async function testConnection() {
+    const username = document.getElementById('input-username').value;
+    const password = document.getElementById('input-password').value;
+    if (!username || !password) { showAlert('danger', 'Enter username and password'); return; }
+
+    const resultDiv = document.getElementById('connection-result');
+    resultDiv.replaceChildren(el('span', { style: 'color:var(--muted)', textContent: 'Testing...' }));
+
+    const result = await api('/api/settings/' + PORTAL_ID + '/test-gateway', {
+      method: 'POST', body: JSON.stringify({ username, password })
+    });
+
+    resultDiv.replaceChildren(
+      result.success
+        ? el('div', { className: 'alert alert-success', textContent: 'Connected! Balance: ' + result.balance })
+        : el('div', { className: 'alert alert-danger', textContent: 'Connection failed. Check your credentials.' })
+    );
+  }
+
+  async function saveCredentials() {
+    const username = document.getElementById('input-username').value;
+    const password = document.getElementById('input-password').value;
+    if (!username || !password) { showAlert('danger', 'Enter username and password'); return; }
+
+    const result = await api('/api/settings/' + PORTAL_ID + '/login', {
+      method: 'POST', body: JSON.stringify({ username, password })
+    });
+
+    if (result.success) {
+      showAlert('success', 'Gateway connected! Balance: ' + result.balance);
+      document.getElementById('input-username').value = '';
+      document.getElementById('input-password').value = '';
+      document.getElementById('connection-result').replaceChildren();
+      loadSettings();
+      loadDashboard();
+    } else {
+      showAlert('danger', 'Connection failed. Check your credentials.');
+    }
+  }
+
+  async function saveSenderId() {
+    const senderId = document.getElementById('select-senderid').value;
+    await api('/api/settings/' + PORTAL_ID, { method: 'POST', body: JSON.stringify({ sender_id: senderId }) });
+    showAlert('success', 'Sender ID updated to ' + senderId);
+  }
+
+  // Logs
+  async function loadLogs() {
+    const data = await api('/api/logs/' + PORTAL_ID + '/sms?limit=50');
+    const tbody = document.getElementById('sms-logs');
+    tbody.replaceChildren();
+    if (data.logs && data.logs.length > 0) {
+      data.logs.forEach(l => {
+        const msgPreview = (l.message_text || '').substring(0, 40) + ((l.message_text || '').length > 40 ? '...' : '');
+        const statusClass = l.status === 'sent' ? 'badge-success' : l.status === 'failed' ? 'badge-danger' : 'badge-warning';
+        tbody.appendChild(el('tr', {}, [
+          el('td', { textContent: new Date(l.created_at).toLocaleString() }),
+          el('td', { textContent: l.recipient_phone }),
+          el('td', { textContent: msgPreview }),
+          el('td', {}, [el('span', { className: 'badge ' + statusClass, textContent: l.status })]),
+          el('td', { textContent: String(l.points_charged || 0) })
+        ]));
+      });
+    } else {
+      tbody.appendChild(el('tr', {}, [el('td', { colspan: '5', style: 'text-align:center;color:var(--muted)', textContent: 'No SMS logs' })]));
+    }
+  }
+
+  async function clearLogs() {
+    if (!confirm('Clear all SMS logs? This cannot be undone.')) return;
+    await api('/api/logs/' + PORTAL_ID + '/sms', { method: 'DELETE' });
+    showAlert('success', 'Logs cleared');
+    loadLogs();
+  }
+
+  loadDashboard();
+  loadSettings();
+</script>
+</body>
+</html>
