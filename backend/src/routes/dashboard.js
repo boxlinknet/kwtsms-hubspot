@@ -7,7 +7,7 @@
  */
 
 const express = require('express');
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 const { getSettingsMasked } = require('../models/settings');
 const { getStats, getLogsByPortal } = require('../models/sms-log');
 
@@ -15,7 +15,7 @@ const { getStats, getLogsByPortal } = require('../models/sms-log');
  * GET /api/dashboard/:portalId
  * Returns dashboard data: gateway status, balance, SMS stats, recent activity.
  */
-router.get('/:portalId', (req, res) => {
+router.get('/', (req, res) => {
   const settings = getSettingsMasked(req.portalId);
 
   const statsToday = getStats(req.portalId, 'today');

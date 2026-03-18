@@ -43,11 +43,13 @@ app.use('/api/oauth', require('./routes/oauth'));
 // Workflow action route (auth comes from HubSpot payload, not our middleware)
 app.use('/api/workflow-action', require('./routes/workflow-action'));
 
-// Protected routes (require portal ID)
-app.use('/api/settings', requirePortalId, require('./routes/settings'));
+// Protected routes (portal ID in URL path)
+app.use('/api/settings/:portalId', requirePortalId, require('./routes/settings'));
+app.use('/api/dashboard/:portalId', requirePortalId, require('./routes/dashboard'));
+app.use('/api/logs/:portalId', requirePortalId, require('./routes/logs'));
+
+// SMS routes (portal ID from header)
 app.use('/api/sms', requirePortalId, require('./routes/sms'));
-app.use('/api/dashboard', requirePortalId, require('./routes/dashboard'));
-app.use('/api/logs', requirePortalId, require('./routes/logs'));
 
 // Global error handler (must be last)
 app.use(errorHandler);

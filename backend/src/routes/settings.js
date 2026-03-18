@@ -8,7 +8,7 @@
  */
 
 const express = require('express');
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 const { getSettingsMasked, upsertSettings } = require('../models/settings');
 const { testGateway, loginAndSync } = require('../services/sms-engine');
 
@@ -16,7 +16,7 @@ const { testGateway, loginAndSync } = require('../services/sms-engine');
  * GET /api/settings/:portalId
  * Returns settings with credentials masked.
  */
-router.get('/:portalId', (req, res) => {
+router.get('/', (req, res) => {
   const settings = getSettingsMasked(req.portalId);
   if (!settings) {
     return res.json({
@@ -36,7 +36,7 @@ router.get('/:portalId', (req, res) => {
  * POST /api/settings/:portalId
  * Update settings (excluding credentials, use /login for that).
  */
-router.post('/:portalId', (req, res) => {
+router.post('/', (req, res) => {
   const allowed = ['sender_id', 'gateway_enabled', 'test_mode', 'debug_logging'];
   const data = {};
   for (const key of allowed) {
@@ -60,7 +60,7 @@ router.post('/:portalId', (req, res) => {
  * POST /api/settings/:portalId/test-gateway
  * Test kwtSMS connection with provided credentials. Does NOT save.
  */
-router.post('/:portalId/test-gateway', async (req, res) => {
+router.post('/test-gateway', async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
@@ -79,7 +79,7 @@ router.post('/:portalId/test-gateway', async (req, res) => {
  * POST /api/settings/:portalId/login
  * Validate credentials, save them, sync senderids + coverage.
  */
-router.post('/:portalId/login', async (req, res) => {
+router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {

@@ -7,16 +7,15 @@
  */
 
 const express = require('express');
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 const smsLogModel = require('../models/sms-log');
 const activityLogModel = require('../models/activity-log');
 
 /**
  * GET /api/logs/:portalId/sms
  * Paginated SMS logs with optional filters.
- * Query: limit, offset, status, dateFrom, dateTo
  */
-router.get('/:portalId/sms', (req, res) => {
+router.get('/sms', (req, res) => {
   const { limit, offset, status, dateFrom, dateTo } = req.query;
 
   const logs = smsLogModel.getLogsByPortal(req.portalId, {
@@ -34,7 +33,7 @@ router.get('/:portalId/sms', (req, res) => {
  * GET /api/logs/:portalId/sms/contact/:contactId
  * SMS logs for a specific contact (used by CRM card).
  */
-router.get('/:portalId/sms/contact/:contactId', (req, res) => {
+router.get('/sms/contact/:contactId', (req, res) => {
   const limit = parseInt(req.query.limit) || 20;
   const logs = smsLogModel.getLogsByContact(req.portalId, req.params.contactId, limit);
   res.json({ logs });
@@ -44,7 +43,7 @@ router.get('/:portalId/sms/contact/:contactId', (req, res) => {
  * DELETE /api/logs/:portalId/sms
  * Clear SMS logs. Optional query: beforeDate (ISO string).
  */
-router.delete('/:portalId/sms', (req, res) => {
+router.delete('/sms', (req, res) => {
   const deleted = smsLogModel.clearLogs(req.portalId, req.query.beforeDate);
   res.json({ success: true, deleted });
 });
@@ -52,9 +51,8 @@ router.delete('/:portalId/sms', (req, res) => {
 /**
  * GET /api/logs/:portalId/activity
  * Paginated activity logs with optional level filter.
- * Query: limit, offset, level
  */
-router.get('/:portalId/activity', (req, res) => {
+router.get('/activity', (req, res) => {
   const { limit, offset, level } = req.query;
 
   const logs = activityLogModel.getLogs(req.portalId, {
@@ -70,7 +68,7 @@ router.get('/:portalId/activity', (req, res) => {
  * DELETE /api/logs/:portalId/activity
  * Clear activity logs. Optional query: beforeDate.
  */
-router.delete('/:portalId/activity', (req, res) => {
+router.delete('/activity', (req, res) => {
   const deleted = activityLogModel.clearLogs(req.portalId, req.query.beforeDate);
   res.json({ success: true, deleted });
 });
