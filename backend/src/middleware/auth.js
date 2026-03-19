@@ -29,7 +29,7 @@ function requirePortalId(req, res, next) {
   // In production, verify access. Allow bootstrap endpoints (login, test-gateway, settings GET)
   // so the admin panel can configure the gateway for the first time.
   if (process.env.NODE_ENV === 'production') {
-    const isBootstrap = req.path === '/login' || req.path === '/test-gateway' || req.path === '/sync' || (req.method === 'GET');
+    const isBootstrap = req.path === '/login' || req.path === '/test-gateway' || req.path === '/sync' || req.path === '/logout' || (req.method === 'GET');
     if (!isBootstrap) {
       const oauthTokens = require('../models/oauth-token');
       const settings = require('../models/settings');

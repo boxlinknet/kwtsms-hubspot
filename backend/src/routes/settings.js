@@ -122,4 +122,20 @@ router.post('/sync', async (req, res) => {
   }
 });
 
+/**
+ * POST /api/settings/:portalId/logout
+ * Clear gateway credentials and disable gateway.
+ */
+router.post('/logout', (req, res) => {
+  upsertSettings(req.portalId, {
+    kwtsms_username: '',
+    kwtsms_password: '',
+    gateway_enabled: false,
+    balance: 0,
+    available_sender_ids: [],
+    coverage: []
+  });
+  res.json({ success: true });
+});
+
 module.exports = router;

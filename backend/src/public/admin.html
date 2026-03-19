@@ -402,13 +402,7 @@
 
   async function gatewayLogout() {
     if (!confirm('Disconnect the gateway? You will need to login again.')) return;
-    await api('/api/settings/' + PORTAL_ID, {
-      method: 'POST', body: JSON.stringify({ gateway_enabled: false })
-    });
-    // Clear credentials by sending empty login
-    await api('/api/settings/' + PORTAL_ID + '/login', {
-      method: 'POST', body: JSON.stringify({ username: '', password: '' })
-    }).catch(() => {});
+    await api('/api/settings/' + PORTAL_ID + '/logout', { method: 'POST' });
     showAlert('success', 'Gateway disconnected');
     loadSettings();
     loadDashboard();
