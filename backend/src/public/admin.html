@@ -171,12 +171,6 @@
     <!-- SETTINGS -->
     <div id="tab-settings" class="tab-content hidden">
       <div class="panel">
-        <h2>General Settings</h2>
-        <div class="toggle-group"><div class="toggle" id="toggle-enabled" onclick="toggleSetting('gateway_enabled')"></div><span>Gateway Enabled</span></div>
-        <div class="toggle-group"><div class="toggle on" id="toggle-testmode" onclick="toggleSetting('test_mode')"></div><span>Test Mode</span></div>
-        <div class="toggle-group"><div class="toggle" id="toggle-debug" onclick="toggleSetting('debug_logging')"></div><span>Debug Logging</span></div>
-      </div>
-      <div class="panel">
         <h2>Gateway Configuration</h2>
         <!-- Login form (shown when not connected) -->
         <div id="gateway-login">
@@ -212,6 +206,12 @@
             <button class="btn btn-danger btn-sm" onclick="gatewayLogout()">Logout</button>
           </div>
         </div>
+      </div>
+      <div class="panel" id="general-settings" style="display:none">
+        <h2>General Settings</h2>
+        <div class="toggle-group"><div class="toggle" id="toggle-enabled" onclick="toggleSetting('gateway_enabled')"></div><span>Gateway Enabled</span></div>
+        <div class="toggle-group"><div class="toggle on" id="toggle-testmode" onclick="toggleSetting('test_mode')"></div><span>Test Mode</span></div>
+        <div class="toggle-group"><div class="toggle" id="toggle-debug" onclick="toggleSetting('debug_logging')"></div><span>Debug Logging</span></div>
       </div>
     </div>
 
@@ -365,6 +365,7 @@
     const isConnected = settings.kwtsms_username && settings.kwtsms_username !== '';
     document.getElementById('gateway-login').style.display = isConnected ? 'none' : 'block';
     document.getElementById('gateway-connected').style.display = isConnected ? 'block' : 'none';
+    document.getElementById('general-settings').style.display = isConnected ? 'block' : 'none';
 
     if (isConnected) {
       document.getElementById('gw-balance').textContent = settings.balance || 0;
