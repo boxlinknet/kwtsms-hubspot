@@ -26,12 +26,18 @@ function requirePortalId(req, res, next) {
     return res.status(400).json({ error: 'Invalid portal ID format' });
   }
 
-  // In production, verify the portal has an OAuth token or settings record
+  // In production, verify access. Allow bootstrap endpoints (login, test-gateway, settings GET)
+  // so the admin panel can configure the gateway for the first time.
   if (process.env.NODE_ENV === 'production') {
-    const oauthTokens = require('../models/oauth-token');
-    const tokens = oauthTokens.getTokens(portalId);
-    if (!tokens) {
-      return res.status(401).json({ error: 'Authentication required' });
+    const isBootstrap = req.path === '/login' || req.path === '/test-gateway' || (req.method === 'GET');
+    if (!isBootstrap) {
+      const oauthTokens = require('../models/oauth-token');
+      const settings = require('../models/settings');
+      const tokens = oauthTokens.getTokens(portalId);
+      const savedSettings = settings.getSettings(portalId);
+      if (!tokens && !savedSettings) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
     }
   }
 
