@@ -7,7 +7,7 @@
     "distribution": "marketplace",
     "auth": {
       "type": "oauth",
-      "redirectUrls": ["http://localhost:3001/api/oauth/callback"],
+      "redirectUrls": ["https://hspot.kwtsms.com/api/oauth/callback"],
       "requiredScopes": [
         "oauth",
         "crm.objects.contacts.read",
@@ -20,7 +20,7 @@
       "conditionallyRequiredScopes": []
     },
     "permittedUrls": {
-      "fetch": ["https://www.kwtsms.com", "https://styles-producers-relax-boxing.trycloudflare.com"],
+      "fetch": ["https://www.kwtsms.com", "https://hspot.kwtsms.com"],
       "iframe": [],
       "img": ["https://www.kwtsms.com"]
     },

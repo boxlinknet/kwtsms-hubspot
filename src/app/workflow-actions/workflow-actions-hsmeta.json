@@ -2,7 +2,7 @@
   "uid": "workflow_action",
   "type": "workflow-action",
   "config": {
-    "actionUrl": "https://styles-producers-relax-boxing.trycloudflare.com/api/workflow-action/send-sms",
+    "actionUrl": "https://hspot.kwtsms.com/api/workflow-action/send-sms",
     "isPublished": true,
     "supportedClients": [
       {
