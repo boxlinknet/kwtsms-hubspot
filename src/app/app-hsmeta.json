@@ -20,7 +20,7 @@
       "conditionallyRequiredScopes": []
     },
     "permittedUrls": {
-      "fetch": ["https://www.kwtsms.com"],
+      "fetch": ["https://www.kwtsms.com", "https://styles-producers-relax-boxing.trycloudflare.com"],
       "iframe": [],
       "img": ["https://www.kwtsms.com"]
     },

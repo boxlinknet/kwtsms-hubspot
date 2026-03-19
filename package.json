@@ -12,5 +12,8 @@
     "test": "cd backend && npm test",
     "hs:dev": "hs project dev",
     "hs:upload": "hs project upload"
+  },
+  "dependencies": {
+    "@hubspot/cli": "^8.1.0"
   }
 }

@@ -39,3 +39,4 @@ docker/
 *.log
 *.zip
 napkin.md
+.playwright-cli/

@@ -2,7 +2,7 @@
   "uid": "workflow_action",
   "type": "workflow-action",
   "config": {
-    "actionUrl": "https://kwtsms-hubspot-backend.example.com/api/workflow-action/send-sms",
+    "actionUrl": "https://styles-producers-relax-boxing.trycloudflare.com/api/workflow-action/send-sms",
     "isPublished": true,
     "supportedClients": [
       {
@@ -39,7 +39,21 @@
           "fieldType": "text"
         },
         "supportedValueTypes": ["STATIC_VALUE"],
-        "isRequired": true
+        "isRequired": false
+      },
+      {
+        "typeDefinition": {
+          "name": "sender_name",
+          "type": "enumeration",
+          "fieldType": "select",
+          "options": [
+            { "value": "KWT-SMS", "label": "KWT-SMS (test)" },
+            { "value": "AL-Nawadi", "label": "AL-Nawadi" },
+            { "value": "Ordarat.Co", "label": "Ordarat.Co" }
+          ]
+        },
+        "supportedValueTypes": ["STATIC_VALUE"],
+        "isRequired": false
       }
     ],
     "labels": {
@@ -50,12 +64,14 @@
         "inputFieldLabels": {
           "phone_property": "Phone number property",
           "message": "Message",
-          "sender_id": "Sender ID"
+          "sender_id": "Sender ID (text, deprecated)",
+          "sender_name": "Sender ID"
         },
         "inputFieldDescriptions": {
           "phone_property": "Select which contact property contains the phone number",
           "message": "The SMS message to send. Use personalization tokens like {{contact.firstname}}",
-          "sender_id": "The sender ID to display on the recipient phone"
+          "sender_id": "Leave empty, use Sender ID dropdown instead",
+          "sender_name": "Select the sender ID for this SMS"
         }
       }
     },
