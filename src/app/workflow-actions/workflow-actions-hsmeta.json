@@ -1,10 +1,14 @@
 {
-  "uid": "kwtsms_send_sms_action",
+  "uid": "workflow_action",
   "type": "workflow-action",
   "config": {
     "actionUrl": "https://kwtsms-hubspot-backend.example.com/api/workflow-action/send-sms",
     "isPublished": true,
-    "supportedClients": [{ "client": "WORKFLOWS" }],
+    "supportedClients": [
+      {
+        "client": "WORKFLOWS"
+      }
+    ],
     "inputFields": [
       {
         "typeDefinition": {
@@ -52,21 +56,6 @@
           "phone_property": "Select which contact property contains the phone number",
           "message": "The SMS message to send. Use personalization tokens like {{contact.firstname}}",
           "sender_id": "The sender ID to display on the recipient phone"
-        }
-      },
-      "ar": {
-        "actionName": "\u0627\u0631\u0633\u0627\u0644 \u0631\u0633\u0627\u0644\u0629 SMS \u0639\u0628\u0631 kwtSMS",
-        "actionDescription": "\u0627\u0631\u0633\u0627\u0644 \u0631\u0633\u0627\u0644\u0629 \u0646\u0635\u064A\u0629 \u0642\u0635\u064A\u0631\u0629 \u0627\u0644\u0649 \u062C\u0647\u0629 \u0627\u062A\u0635\u0627\u0644 \u0639\u0628\u0631 \u0628\u0648\u0627\u0628\u0629 kwtSMS",
-        "actionCardContent": "\u0627\u0631\u0633\u0627\u0644 SMS \u0627\u0644\u0649 {{phone_property}}",
-        "inputFieldLabels": {
-          "phone_property": "\u062D\u0642\u0644 \u0631\u0642\u0645 \u0627\u0644\u0647\u0627\u062A\u0641",
-          "message": "\u0627\u0644\u0631\u0633\u0627\u0644\u0629",
-          "sender_id": "\u0645\u0639\u0631\u0641 \u0627\u0644\u0645\u0631\u0633\u0644"
-        },
-        "inputFieldDescriptions": {
-          "phone_property": "\u0627\u062E\u062A\u0631 \u062D\u0642\u0644 \u062C\u0647\u0629 \u0627\u0644\u0627\u062A\u0635\u0627\u0644 \u0627\u0644\u0630\u064A \u064A\u062D\u062A\u0648\u064A \u0639\u0644\u0649 \u0631\u0642\u0645 \u0627\u0644\u0647\u0627\u062A\u0641",
-          "message": "\u0646\u0635 \u0627\u0644\u0631\u0633\u0627\u0644\u0629 \u0627\u0644\u0642\u0635\u064A\u0631\u0629. \u064A\u0645\u0643\u0646\u0643 \u0627\u0633\u062A\u062E\u062F\u0627\u0645 \u0631\u0645\u0648\u0632 \u0627\u0644\u062A\u062E\u0635\u064A\u0635 \u0645\u062B\u0644 {{contact.firstname}}",
-          "sender_id": "\u0645\u0639\u0631\u0641 \u0627\u0644\u0645\u0631\u0633\u0644 \u0627\u0644\u0630\u064A \u0633\u064A\u0638\u0647\u0631 \u0639\u0644\u0649 \u0647\u0627\u062A\u0641 \u0627\u0644\u0645\u0633\u062A\u0644\u0645"
         }
       }
     },
