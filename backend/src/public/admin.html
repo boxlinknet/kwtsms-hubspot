@@ -215,6 +215,16 @@
         <div class="toggle-group"><div class="toggle on" id="toggle-testmode"></div><span>Test Mode</span></div>
         <div class="toggle-group"><div class="toggle" id="toggle-debug"></div><span>Debug Logging</span></div>
       </div>
+      <div class="panel" id="test-sms-panel" style="display:none">
+        <h2>Test SMS</h2>
+        <p style="font-size:0.85rem;color:var(--muted);margin-bottom:12px">Send a test message to verify your gateway is working. Uses test mode (no delivery, no credits).</p>
+        <div class="form-row">
+          <div class="form-group"><label>Phone Number</label><input type="text" id="test-phone" placeholder="96598765432"></div>
+          <div class="form-group"><label>Message</label><input type="text" id="test-message"></div>
+        </div>
+        <button class="btn btn-secondary" id="btn-test-sms">Send Test SMS</button>
+        <div id="test-sms-result" style="margin-top:12px"></div>
+      </div>
     </div>
 
     <!-- LOGS -->
@@ -351,6 +361,10 @@
     document.getElementById('gateway-login').style.display = isConnected ? 'none' : 'block';
     document.getElementById('gateway-connected').style.display = isConnected ? 'block' : 'none';
     document.getElementById('general-settings').style.display = isConnected ? 'block' : 'none';
+    document.getElementById('test-sms-panel').style.display = isConnected ? 'block' : 'none';
+    if (isConnected && !document.getElementById('test-message').value) {
+      document.getElementById('test-message').value = 'kwtSMS HubSpot gateway test at ' + new Date().toLocaleString();
+    }
 
     if (isConnected) {
       document.getElementById('gw-balance').textContent = settings.balance || 0;
@@ -454,6 +468,24 @@
     loadLogs();
   }
 
+  async function sendTestSms() {
+    const phone = document.getElementById('test-phone').value;
+    const message = document.getElementById('test-message').value;
+    if (!phone) { showAlert('danger', 'Enter a phone number'); return; }
+    const resultDiv = document.getElementById('test-sms-result');
+    resultDiv.replaceChildren(el('span', { style: 'color:var(--muted)', textContent: 'Sending...' }));
+    const result = await api('/api/sms/test', {
+      method: 'POST',
+      headers: { 'X-Portal-Id': PORTAL_ID },
+      body: JSON.stringify({ phone, message })
+    });
+    if (result.success) {
+      resultDiv.replaceChildren(el('div', { className: 'alert alert-success', textContent: 'Test SMS sent successfully (test mode, not delivered)' }));
+    } else {
+      resultDiv.replaceChildren(el('div', { className: 'alert alert-danger', textContent: result.error || 'Failed to send test SMS' }));
+    }
+  }
+
   // Event listeners (no inline onclick)
   document.getElementById('toggle-enabled').addEventListener('click', () => toggleSetting('gateway_enabled'));
   document.getElementById('toggle-testmode').addEventListener('click', () => toggleSetting('test_mode'));
@@ -463,6 +495,7 @@
   document.getElementById('btn-reload').addEventListener('click', reloadGateway);
   document.getElementById('btn-logout').addEventListener('click', gatewayLogout);
   document.getElementById('btn-clear-logs').addEventListener('click', clearLogs);
+  document.getElementById('btn-test-sms').addEventListener('click', sendTestSms);
 
   loadDashboard();
   loadSettings();
