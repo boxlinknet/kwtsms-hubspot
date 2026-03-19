@@ -13,6 +13,7 @@ const path = require('node:path');
 const fs = require('node:fs');
 
 let db = null;
+let rawDb = null;
 let dbPath = null;
 let sqljs = null;
 
@@ -20,8 +21,8 @@ let sqljs = null;
  * Save database to disk. Called after every write operation.
  */
 function saveToDisk() {
-  if (db && dbPath) {
-    const data = db.export();
+  if (rawDb && dbPath) {
+    const data = rawDb.export();
     const buffer = Buffer.from(data);
     fs.writeFileSync(dbPath, buffer);
   }
@@ -110,10 +111,11 @@ async function initDatabase(overridePath) {
 
   if (fs.existsSync(dbPath)) {
     const fileBuffer = fs.readFileSync(dbPath);
-    db = createWrapper(new sqljs.Database(fileBuffer));
+    rawDb = new sqljs.Database(fileBuffer);
   } else {
-    db = createWrapper(new sqljs.Database());
+    rawDb = new sqljs.Database();
   }
+  db = createWrapper(rawDb);
 
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
@@ -169,8 +171,10 @@ function runMigrations(database) {
 
 function closeDatabase() {
   if (db) {
-    db.close();
+    saveToDisk();
+    rawDb.close();
     db = null;
+    rawDb = null;
   }
 }
 
