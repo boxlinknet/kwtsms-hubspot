@@ -304,7 +304,7 @@ async function loginAndSync(portalId, username, password) {
 
   // Fetch coverage
   const coverageResult = await sms.coverage();
-  const coverage = coverageResult.result === 'OK' ? (coverageResult.coverage || []) : [];
+  const coverage = coverageResult.result === 'OK' ? (coverageResult.prefixes || coverageResult.coverage || []) : [];
 
   // Save everything
   upsertSettings(portalId, {

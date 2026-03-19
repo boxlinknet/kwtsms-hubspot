@@ -59,8 +59,9 @@ async function syncPortal(portalId, username, password) {
   // Sync coverage
   try {
     const result = await sms.coverage();
-    if (result.result === 'OK' && result.coverage) {
-      updateCoverage(portalId, result.coverage);
+    const prefixes = result.prefixes || result.coverage;
+    if (result.result === 'OK' && prefixes) {
+      updateCoverage(portalId, prefixes);
     } else {
       errors.push(`Coverage fetch error: ${result.code || 'unknown'}`);
     }
