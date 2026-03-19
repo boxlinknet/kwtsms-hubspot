@@ -117,10 +117,11 @@ async function initDatabase(overridePath) {
   }
   db = createWrapper(rawDb);
 
-  db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
 
   runMigrations(db);
+  saveToDisk();
+  console.log('Database initialized at', dbPath);
   return db;
 }
 
@@ -136,7 +137,7 @@ function getDatabase() {
 }
 
 /**
- * Run all pending migrations.
+ * Run all pending migrations. No transactions - each statement saves to disk.
  */
 function runMigrations(database) {
   database.prepare(`
@@ -161,10 +162,9 @@ function runMigrations(database) {
   for (const file of files) {
     if (applied.has(file)) continue;
     const migration = require(path.join(migrationsDir, file));
-    database.transaction(() => {
-      migration.up(database);
-      database.prepare('INSERT INTO _migrations (name) VALUES (?)').run(file);
-    })();
+    migration.up(database);
+    database.prepare('INSERT INTO _migrations (name) VALUES (?)').run(file);
+    saveToDisk();
     console.log(`Migration applied: ${file}`);
   }
 }
