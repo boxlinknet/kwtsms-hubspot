@@ -336,23 +336,6 @@
 
     document.getElementById('dash-senderid').textContent = gw.senderId || 'KWT-SMS';
     document.getElementById('dash-lastsync').textContent = gw.lastSync ? new Date(gw.lastSync).toLocaleString() : 'Never';
-
-    // Recent activity (safe DOM)
-    const tbody = document.getElementById('recent-activity');
-    tbody.replaceChildren();
-    if (data.recentActivity && data.recentActivity.length > 0) {
-      data.recentActivity.forEach(a => {
-        const statusClass = a.status === 'sent' ? 'badge-success' : a.status === 'failed' ? 'badge-danger' : 'badge-warning';
-        tbody.appendChild(el('tr', {}, [
-          el('td', { textContent: new Date(a.createdAt).toLocaleString() }),
-          el('td', { textContent: a.phone }),
-          el('td', {}, [el('span', { className: 'badge ' + statusClass, textContent: a.status })]),
-          el('td', { textContent: a.source })
-        ]));
-      });
-    } else {
-      tbody.appendChild(el('tr', {}, [el('td', { colspan: '4', style: 'text-align:center;color:var(--muted)', textContent: 'No recent activity' })]));
-    }
   }
 
   // Settings
