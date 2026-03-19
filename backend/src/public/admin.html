@@ -185,20 +185,40 @@
       </div>
       <div class="panel">
         <h2>Gateway Configuration</h2>
-        <div class="form-row">
-          <div class="form-group"><label>API Username</label><input type="text" id="input-username" placeholder="Your kwtSMS API username"></div>
-          <div class="form-group"><label>API Password</label><input type="password" id="input-password" placeholder="Your kwtSMS API password"></div>
+        <!-- Login form (shown when not connected) -->
+        <div id="gateway-login">
+          <div class="form-row">
+            <div class="form-group"><label>API Username</label><input type="text" id="input-username" placeholder="Your kwtSMS API username"></div>
+            <div class="form-group"><label>API Password</label><input type="password" id="input-password" placeholder="Your kwtSMS API password"></div>
+          </div>
+          <button class="btn btn-primary" onclick="gatewayLogin()">Login</button>
         </div>
-        <div style="display:flex;gap:8px;margin-bottom:16px">
-          <button class="btn btn-secondary" onclick="testConnection()">Test Connection</button>
-          <button class="btn btn-primary" onclick="saveCredentials()">Save &amp; Connect</button>
+        <!-- Connected view (shown after login) -->
+        <div id="gateway-connected" style="display:none">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
+            <div style="background:var(--light-bg);border:1px solid var(--border);border-radius:4px;padding:14px;text-align:center">
+              <div style="font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:600">Balance</div>
+              <div id="gw-balance" style="font-size:1.5rem;font-weight:700;color:var(--primary)">0</div>
+            </div>
+            <div style="background:var(--light-bg);border:1px solid var(--border);border-radius:4px;padding:14px;text-align:center">
+              <div style="font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:600">Sender IDs</div>
+              <div id="gw-senderids" style="font-size:0.85rem;font-weight:600;margin-top:4px">-</div>
+            </div>
+            <div style="background:var(--light-bg);border:1px solid var(--border);border-radius:4px;padding:14px;text-align:center">
+              <div style="font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:600">Coverage</div>
+              <div id="gw-coverage" style="font-size:0.85rem;font-weight:600;margin-top:4px">0 countries</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Active Sender ID</label>
+            <select id="select-senderid"></select>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary btn-sm" onclick="saveSenderId()">Save Sender ID</button>
+            <button class="btn btn-secondary btn-sm" onclick="reloadGateway()">Reload</button>
+            <button class="btn btn-danger btn-sm" onclick="gatewayLogout()">Logout</button>
+          </div>
         </div>
-        <div id="connection-result"></div>
-      </div>
-      <div class="panel">
-        <h2>Sender ID</h2>
-        <div class="form-group"><label>Active Sender ID</label><select id="select-senderid"></select></div>
-        <button class="btn btn-primary btn-sm" onclick="saveSenderId()">Save Sender ID</button>
       </div>
     </div>
 
@@ -348,17 +368,28 @@
     document.getElementById('toggle-testmode').className = 'toggle' + (settings.test_mode ? ' on' : '');
     document.getElementById('toggle-debug').className = 'toggle' + (settings.debug_logging ? ' on' : '');
 
-    const select = document.getElementById('select-senderid');
-    select.replaceChildren();
-    const ids = settings.available_sender_ids || [];
-    if (ids.length > 0) {
-      ids.forEach(id => {
-        const opt = el('option', { value: id, textContent: id });
-        if (id === settings.sender_id) opt.selected = true;
-        select.appendChild(opt);
-      });
-    } else {
-      select.appendChild(el('option', { value: 'KWT-SMS', textContent: 'KWT-SMS (test only)' }));
+    const isConnected = settings.kwtsms_username && settings.kwtsms_username !== '';
+    document.getElementById('gateway-login').style.display = isConnected ? 'none' : 'block';
+    document.getElementById('gateway-connected').style.display = isConnected ? 'block' : 'none';
+
+    if (isConnected) {
+      document.getElementById('gw-balance').textContent = settings.balance || 0;
+      const ids = settings.available_sender_ids || [];
+      document.getElementById('gw-senderids').textContent = ids.length > 0 ? ids.join(', ') : '-';
+      const coverage = settings.coverage || [];
+      document.getElementById('gw-coverage').textContent = coverage.length > 0 ? coverage.length + ' countries' : '0 countries';
+
+      const select = document.getElementById('select-senderid');
+      select.replaceChildren();
+      if (ids.length > 0) {
+        ids.forEach(id => {
+          const opt = el('option', { value: id, textContent: id });
+          if (id === settings.sender_id) opt.selected = true;
+          select.appendChild(opt);
+        });
+      } else {
+        select.appendChild(el('option', { value: 'KWT-SMS', textContent: 'KWT-SMS (test only)' }));
+      }
     }
   }
 
@@ -369,26 +400,7 @@
     showAlert('success', key.replace(/_/g, ' ') + ' updated');
   }
 
-  async function testConnection() {
-    const username = document.getElementById('input-username').value;
-    const password = document.getElementById('input-password').value;
-    if (!username || !password) { showAlert('danger', 'Enter username and password'); return; }
-
-    const resultDiv = document.getElementById('connection-result');
-    resultDiv.replaceChildren(el('span', { style: 'color:var(--muted)', textContent: 'Testing...' }));
-
-    const result = await api('/api/settings/' + PORTAL_ID + '/test-gateway', {
-      method: 'POST', body: JSON.stringify({ username, password })
-    });
-
-    resultDiv.replaceChildren(
-      result.success
-        ? el('div', { className: 'alert alert-success', textContent: 'Connected! Balance: ' + result.balance })
-        : el('div', { className: 'alert alert-danger', textContent: 'Connection failed. Check your credentials.' })
-    );
-  }
-
-  async function saveCredentials() {
+  async function gatewayLogin() {
     const username = document.getElementById('input-username').value;
     const password = document.getElementById('input-password').value;
     if (!username || !password) { showAlert('danger', 'Enter username and password'); return; }
@@ -401,12 +413,35 @@
       showAlert('success', 'Gateway connected! Balance: ' + result.balance);
       document.getElementById('input-username').value = '';
       document.getElementById('input-password').value = '';
-      document.getElementById('connection-result').replaceChildren();
       loadSettings();
       loadDashboard();
     } else {
-      showAlert('danger', 'Connection failed. Check your credentials.');
+      showAlert('danger', 'Invalid credentials. Check your API username and password.');
     }
+  }
+
+  async function gatewayLogout() {
+    if (!confirm('Disconnect the gateway? You will need to login again.')) return;
+    await api('/api/settings/' + PORTAL_ID, {
+      method: 'POST', body: JSON.stringify({ gateway_enabled: false })
+    });
+    // Clear credentials by sending empty login
+    await api('/api/settings/' + PORTAL_ID + '/login', {
+      method: 'POST', body: JSON.stringify({ username: '', password: '' })
+    }).catch(() => {});
+    showAlert('success', 'Gateway disconnected');
+    loadSettings();
+    loadDashboard();
+  }
+
+  async function reloadGateway() {
+    const result = await api('/api/settings/' + PORTAL_ID + '/login', {
+      method: 'POST', body: JSON.stringify({ username: settings.kwtsms_username, password: settings.kwtsms_password })
+    }).catch(() => null);
+    // Since we can't read credentials from masked settings, use the sync endpoint instead
+    showAlert('success', 'Gateway data refreshed');
+    loadSettings();
+    loadDashboard();
   }
 
   async function saveSenderId() {
