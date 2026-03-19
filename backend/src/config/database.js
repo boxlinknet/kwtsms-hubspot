@@ -71,13 +71,13 @@ function createWrapper(database) {
     },
     transaction(fn) {
       return function() {
-        database.run('BEGIN TRANSACTION');
+        database.run('BEGIN');
         try {
-          fn();
+          fn(wrapper);
           database.run('COMMIT');
           saveToDisk();
         } catch (e) {
-          database.run('ROLLBACK');
+          try { database.run('ROLLBACK'); } catch (_) { /* already rolled back */ }
           throw e;
         }
       };
