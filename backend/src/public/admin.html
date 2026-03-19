@@ -225,14 +225,16 @@
     <!-- LOGS -->
     <div id="tab-logs" class="tab-content hidden">
       <div class="panel">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-          <h2>SMS Logs</h2>
-          <button class="btn btn-danger btn-sm" onclick="clearLogs()">Clear All</button>
-        </div>
+        <h2 style="margin-bottom:16px">SMS Logs</h2>
         <table class="log-table">
           <thead><tr><th>Time</th><th>Phone</th><th>Message</th><th>Credits</th><th>Status</th></tr></thead>
           <tbody id="sms-logs"></tbody>
         </table>
+      </div>
+      <div class="panel" style="border-color:var(--danger);border-width:2px">
+        <h2 style="color:var(--danger)">Danger Zone</h2>
+        <p style="font-size:0.85rem;color:var(--muted);margin-bottom:12px">Permanently delete all SMS logs for this portal. This action cannot be undone. All delivery history, message records, and send statistics will be lost.</p>
+        <button class="btn btn-danger btn-sm" onclick="clearLogs()">Delete All Logs</button>
       </div>
     </div>
 
