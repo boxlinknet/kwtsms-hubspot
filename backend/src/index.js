@@ -60,8 +60,8 @@ app.use(helmet({
 app.use(express.json({ limit: '1mb' }));
 app.use(sanitizeMiddleware);
 
-// Serve admin UI
-app.use('/admin', express.static(path.join(__dirname, 'public')));
+// Serve landing page and admin UI
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Health check (no auth required)
 app.get('/api/health', (req, res) => {

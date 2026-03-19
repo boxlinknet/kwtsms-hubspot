@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>kwtSMS for HubSpot - SMS Notifications for HubSpot CRM</title>
+  <meta name="description" content="Send SMS notifications to your HubSpot contacts via kwtSMS gateway. Workflow actions, CRM cards, Arabic and English support.">
+  <link rel="icon" href="https://www.kwtsms.com/images/apple-icon-57x57.png">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #FFA200;
+      --primary-dark: #e08f00;
+      --primary-light: #fff8eb;
+      --accent: #79CCF2;
+      --accent-light: #e8f6fd;
+      --green: #198754;
+      --green-light: #d1f2e0;
+      --text: #434345;
+      --text-light: #6c757d;
+      --bg: #ffffff;
+      --bg-alt: #f8f9fa;
+      --border: #e9ecef;
+      --radius: 10px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-lg: 0 4px 16px rgba(0,0,0,0.07);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Lato', Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* Nav */
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 32px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(8px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .nav-logo { height: 30px; }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--primary); }
+    .nav-cta {
+      padding: 8px 22px !important;
+      background: var(--primary);
+      color: #fff !important;
+      border-radius: 6px;
+      transition: background 0.2s !important;
+    }
+    .nav-cta:hover { background: var(--primary-dark) !important; }
+
+    /* Hero */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 72px 24px 56px;
+      background: linear-gradient(180deg, var(--primary-light) 0%, #fff 100%);
+    }
+    .hero-logo {
+      height: 80px;
+      margin-bottom: 28px;
+      animation: fadeUp 0.5s ease both;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: var(--green-light);
+      color: var(--green);
+      border-radius: 100px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      animation: fadeUp 0.5s ease 0.05s both;
+    }
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+    .hero-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 18px;
+      letter-spacing: -0.5px;
+      animation: fadeUp 0.5s ease 0.08s both;
+    }
+    .hero-title-accent { color: var(--primary); }
+    .hero-sub {
+      font-size: 1.1rem;
+      line-height: 1.7;
+      color: var(--text-light);
+      max-width: 560px;
+      margin: 0 auto 32px;
+      animation: fadeUp 0.5s ease 0.12s both;
+    }
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      animation: fadeUp 0.5s ease 0.16s both;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'Montserrat', sans-serif;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(255,162,0,0.3);
+    }
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      background: #fff;
+      color: var(--text);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'Montserrat', sans-serif;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+    .price-tag {
+      margin-top: 20px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      max-width: 480px;
+      animation: fadeUp 0.5s ease 0.2s both;
+    }
+    .price-tag strong { color: var(--primary-dark); font-weight: 700; font-size: 1.05rem; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Stats */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 56px;
+      padding: 36px 24px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .stat { text-align: center; }
+    .stat-number {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-top: 2px;
+      font-weight: 700;
+    }
+
+    /* Section shared */
+    .section {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 56px 24px;
+      scroll-margin-top: 60px;
+    }
+    .section-compact { padding: 36px 24px; }
+    .section-center { text-align: center; }
+    .section-alt { background: var(--bg-alt); }
+    .section-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 10px;
+    }
+    .section-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 14px;
+    }
+    .section-sub {
+      font-size: 1rem;
+      color: var(--text-light);
+      line-height: 1.6;
+      max-width: 500px;
+      margin: 0 auto 28px;
+    }
+
+    /* Features grid */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      max-width: 960px;
+      margin: 32px auto 0;
+    }
+    .feature {
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px 22px;
+      text-align: left;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .feature:hover { border-color: var(--primary); box-shadow: var(--shadow-lg); }
+    .feature-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .feature-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--primary-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .feature-title { font-family: 'Montserrat', sans-serif; font-size: 0.9rem; font-weight: 700; }
+    .feature-desc { font-size: 0.87rem; line-height: 1.6; color: var(--text-light); }
+
+    /* Recipients */
+    .recipients {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      max-width: 660px;
+      margin: 0 auto;
+    }
+    .recipient-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      background: #fff;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      text-align: left;
+      transition: border-color 0.2s;
+    }
+    .recipient-card:hover { border-color: var(--primary); }
+    .recipient-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+    .recipient-icon-contact { background: var(--accent-light); }
+    .recipient-icon-admin { background: var(--primary-light); }
+    .recipient-title { font-family: 'Montserrat', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+    .recipient-desc { font-size: 0.85rem; color: var(--text-light); line-height: 1.5; }
+
+    /* Events */
+    .events {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      max-width: 960px;
+      margin: 32px auto 0;
+    }
+    .event {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 13px 16px;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+    .event-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+    .event-dot-soon { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+    .event-soon { color: var(--text-light); font-weight: 400; }
+    .event-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+    .event-label-live { background: var(--green-light); color: var(--green); }
+    .event-label-soon { background: var(--bg-alt); color: var(--text-light); }
+
+    /* Steps */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-top: 24px;
+    }
+    .step { text-align: center; padding: 24px 16px; }
+    .step-number {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px;
+    }
+    .step-title { font-family: 'Montserrat', sans-serif; font-size: 0.95rem; font-weight: 700; margin-bottom: 6px; }
+    .step-desc { font-size: 0.85rem; line-height: 1.6; color: var(--text-light); }
+
+    /* Roadmap */
+    .roadmap {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 32px;
+    }
+    .roadmap-card {
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px 22px;
+      text-align: left;
+    }
+    .roadmap-phase {
+      display: inline-block;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #fff;
+      background: var(--primary);
+      padding: 3px 12px;
+      border-radius: 4px;
+      margin-bottom: 14px;
+    }
+    .roadmap-title { font-family: 'Montserrat', sans-serif; font-size: 1.05rem; font-weight: 700; margin-bottom: 12px; }
+    .roadmap-list { list-style: none; display: grid; gap: 7px; }
+    .roadmap-list li {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      padding-left: 18px;
+      position: relative;
+      line-height: 1.5;
+    }
+    .roadmap-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 7px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--primary-light);
+      border: 2px solid var(--primary);
+    }
+
+    /* Install CTA */
+    .install {
+      text-align: center;
+      padding: 68px 24px 76px;
+      background: var(--primary-light);
+      border-top: 1px solid var(--border);
+      scroll-margin-top: 60px;
+    }
+    .install-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(1.4rem, 2.8vw, 1.9rem);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .install-sub { font-size: 1rem; color: var(--text-light); margin-bottom: 28px; }
+    .install-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+
+    /* Footer */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 24px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-light);
+    }
+    .footer a { color: var(--primary); text-decoration: none; font-weight: 700; }
+    .footer a:hover { text-decoration: underline; }
+    .footer-links { display: flex; justify-content: center; gap: 24px; margin-bottom: 8px; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .features, .roadmap, .events { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr 1fr; }
+      .stats { gap: 28px; }
+      .hero { padding: 48px 20px 40px; }
+      .recipients { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+    @media (max-width: 480px) {
+      .steps { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <img src="https://www.kwtsms.com/images/kwtsms_logo_60.png" alt="kwtSMS" class="nav-logo">
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#setup">Setup</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+      <li><a href="#install" class="nav-cta">Install Free</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <img src="https://www.kwtsms.com/images/kwtsms_logo_100.png" alt="kwtSMS" class="hero-logo">
+    <div class="badge"><span class="badge-dot"></span> Free on HubSpot Marketplace</div>
+    <h1 class="hero-title">SMS Notifications for <span class="hero-title-accent">HubSpot CRM</span></h1>
+    <p class="hero-sub">Connect your HubSpot CRM to the kwtSMS gateway. Send SMS when deals change, contacts are created, or workflows trigger, in Arabic and English, to customers across Kuwait and the Middle East.</p>
+    <div class="hero-actions">
+      <a href="#install" class="btn-primary">Install Free &rarr;</a>
+      <a href="https://www.kwtsms.com" target="_blank" rel="noopener" class="btn-secondary">About kwtSMS</a>
+    </div>
+    <p class="price-tag">
+      <strong>100% Free app. Pay-as-you-go SMS. No contracts.</strong><br>
+      Use your own private Sender ID so contacts see your brand name, not a random name or number.
+    </p>
+  </section>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat"><div class="stat-number">18 Years</div><div class="stat-label">Established Since 2007</div></div>
+    <div class="stat"><div class="stat-number">99.8%</div><div class="stat-label">Delivery Rate</div></div>
+    <div class="stat"><div class="stat-number">Forever</div><div class="stat-label">Credits Never Expire</div></div>
+    <div class="stat"><div class="stat-number">$0</div><div class="stat-label">Monthly Fee</div></div>
+  </div>
+
+  <!-- Features -->
+  <section class="section section-compact section-center" id="features">
+    <div class="section-label">Features</div>
+    <h2 class="section-title">Everything you need to keep contacts informed</h2>
+    <div class="features">
+      <div class="feature">
+        <div class="feature-header">
+          <div class="feature-icon">&#9993;</div>
+          <h3 class="feature-title">Workflow Actions</h3>
+        </div>
+        <p class="feature-desc">Add "Send SMS via kwtSMS" to any HubSpot workflow. Trigger on deal stage changes, new contacts, form submissions, and more.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-header">
+          <div class="feature-icon">&#1645;</div>
+          <h3 class="feature-title">Arabic + English</h3>
+        </div>
+        <p class="feature-desc">Full Arabic and English support in SMS content and workflow labels. RTL text handled correctly with proper character counting.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-header">
+          <div class="feature-icon">&#9998;</div>
+          <h3 class="feature-title">Personalization Tokens</h3>
+        </div>
+        <p class="feature-desc">Use HubSpot tokens like {{contact.firstname}} in your SMS messages. Dynamic content resolved automatically at send time.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-header">
+          <div class="feature-icon">&#9742;</div>
+          <h3 class="feature-title">Smart Phone Handling</h3>
+        </div>
+        <p class="feature-desc">Automatic normalization of Arabic digits, country prefixes, spaces, and dashes. Coverage checking before every send.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-header">
+          <div class="feature-icon">&#9783;</div>
+          <h3 class="feature-title">Detailed SMS Logs</h3>
+        </div>
+        <p class="feature-desc">Complete send history with delivery status, error codes, cost tracking. Filter by date, status, or source.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-header">
+          <div class="feature-icon">&#9878;</div>
+          <h3 class="feature-title">Balance Monitoring</h3>
+        </div>
+        <p class="feature-desc">Real-time SMS credit balance on the dashboard with daily auto-sync. Sender ID and coverage management included.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recipients -->
+  <section class="section section-compact section-center">
+    <div class="section-label">Recipients</div>
+    <h2 class="section-title">Notify contacts and your team</h2>
+    <p class="section-sub">Configure workflows to send SMS to contacts, internal team members, or both. You control who gets notified for each trigger.</p>
+    <div class="recipients">
+      <div class="recipient-card">
+        <div class="recipient-icon recipient-icon-contact">&#128100;</div>
+        <div>
+          <h3 class="recipient-title">Contact SMS</h3>
+          <p class="recipient-desc">Order confirmations, appointment reminders, deal updates, and status notifications sent directly to the contact's phone.</p>
+        </div>
+      </div>
+      <div class="recipient-card">
+        <div class="recipient-icon recipient-icon-admin">&#128188;</div>
+        <div>
+          <h3 class="recipient-title">Admin SMS</h3>
+          <p class="recipient-desc">Get instant alerts when deals close, new contacts register, or tickets are created. Never miss an important CRM event.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Notification Events -->
+  <section class="section section-center section-alt">
+    <div class="section-label">Triggers</div>
+    <h2 class="section-title">Works with any HubSpot workflow trigger</h2>
+    <div class="events">
+      <div class="event"><span class="event-dot"></span>Deal Stage Change<span class="event-label event-label-live">Live</span></div>
+      <div class="event"><span class="event-dot"></span>New Contact Created<span class="event-label event-label-live">Live</span></div>
+      <div class="event"><span class="event-dot"></span>Form Submission<span class="event-label event-label-live">Live</span></div>
+      <div class="event"><span class="event-dot"></span>Manual Enrollment<span class="event-label event-label-live">Live</span></div>
+      <div class="event"><span class="event-dot"></span>Ticket Status Change<span class="event-label event-label-live">Live</span></div>
+      <div class="event"><span class="event-dot"></span>Deal Won / Lost<span class="event-label event-label-live">Live</span></div>
+      <div class="event event-soon"><span class="event-dot-soon"></span>Scheduled SMS<span class="event-label event-label-soon">Soon</span></div>
+      <div class="event event-soon"><span class="event-dot-soon"></span>Low Balance Alert<span class="event-label event-label-soon">Soon</span></div>
+      <div class="event event-soon"><span class="event-dot-soon"></span>Bulk Campaigns<span class="event-label event-label-soon">Soon</span></div>
+    </div>
+  </section>
+
+  <!-- Setup -->
+  <section class="section section-compact section-center" id="setup">
+    <div class="section-label">Setup</div>
+    <h2 class="section-title">Up and running in 3 minutes</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-number">1</div>
+        <h3 class="step-title">Install the App</h3>
+        <p class="step-desc">Find kwtSMS in the HubSpot Marketplace and click Install. No payment required.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <h3 class="step-title">Connect kwtSMS</h3>
+        <p class="step-desc">Enter your kwtSMS API credentials. The app verifies your account and loads sender IDs and coverage.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <h3 class="step-title">Create a Workflow</h3>
+        <p class="step-desc">Add "Send SMS via kwtSMS" as an action in any contact-based workflow. Pick the phone property and write your message.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">4</div>
+        <h3 class="step-title">Start Sending</h3>
+        <p class="step-desc">Done. Every trigger fires the workflow and sends SMS to your contact or admin automatically.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Roadmap -->
+  <section class="section section-compact section-center" id="roadmap">
+    <div class="section-label">Roadmap</div>
+    <h2 class="section-title">What's coming next</h2>
+    <div class="roadmap">
+      <div class="roadmap-card">
+        <div class="roadmap-phase">Phase 2</div>
+        <h3 class="roadmap-title">Templates + Integrations</h3>
+        <ul class="roadmap-list">
+          <li>SMS templates with placeholders</li>
+          <li>Per-trigger settings (deals, tickets, forms)</li>
+          <li>Admin SMS alerts (low balance, new deals)</li>
+          <li>Enhanced logs with CSV export</li>
+        </ul>
+      </div>
+      <div class="roadmap-card">
+        <div class="roadmap-phase">Phase 3</div>
+        <h3 class="roadmap-title">OTP + Security</h3>
+        <ul class="roadmap-list">
+          <li>OTP login verification</li>
+          <li>Password reset via SMS</li>
+          <li>CAPTCHA integration</li>
+          <li>Rate limiting per phone/IP</li>
+        </ul>
+      </div>
+      <div class="roadmap-card">
+        <div class="roadmap-phase">Phase 4</div>
+        <h3 class="roadmap-title">Marketing + Analytics</h3>
+        <ul class="roadmap-list">
+          <li>Bulk SMS campaigns</li>
+          <li>Scheduled sending</li>
+          <li>Contact segmentation</li>
+          <li>Analytics dashboard</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Install CTA -->
+  <section class="install" id="install">
+    <h2 class="install-title">Ready to add SMS to your CRM?</h2>
+    <p class="install-sub">Install kwtSMS for HubSpot from the marketplace. It's free.</p>
+    <div class="install-actions">
+      <a href="https://ecosystem.hubspot.com/marketplace/apps" target="_blank" rel="noopener" class="btn-primary">Browse HubSpot Marketplace &rarr;</a>
+      <a href="https://www.kwtsms.com" target="_blank" rel="noopener" class="btn-secondary">Sign up for kwtSMS</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="https://www.kwtsms.com" target="_blank" rel="noopener">kwtsms.com</a>
+      <a href="https://www.kwtsms.com/support.html" target="_blank" rel="noopener">Support</a>
+      <a href="https://www.kwtsms.com/faq/" target="_blank" rel="noopener">FAQ</a>
+    </div>
+    <p>kwtSMS for HubSpot is a free app by kwtSMS. You only pay for SMS credits through your kwtSMS account.</p>
+  </footer>
+
+</body>
+</html>
