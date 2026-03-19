@@ -67,14 +67,32 @@ async function send(portalId, recipients, message, senderId, options = {}) {
 
   // 3. Normalize recipients to array
   const rawNumbers = Array.isArray(recipients) ? recipients : [recipients];
-  logger.debug('sms-engine.send', `Processing ${rawNumbers.length} recipient(s)`, { source });
+  const defaultCC = settings.default_country_code || '';
+  logger.debug('sms-engine.send', `Processing ${rawNumbers.length} recipient(s)`, { source, defaultCC });
 
-  // 4. Verify each phone number locally
+  // 4. Verify each phone number locally, prepend default country code if needed
   const verified = [];
   const rejected = [];
 
-  for (const raw of rawNumbers) {
-    const result = verifyPhone(raw);
+  for (let raw of rawNumbers) {
+    // First attempt: verify as-is
+    let result = verifyPhone(raw);
+
+    // If invalid and we have a default country code, try prepending it
+    if (!result.valid && defaultCC) {
+      const { normalizePhone } = require('../kwtsms/normalize');
+      const normalized = normalizePhone(raw);
+      // Only prepend if the number doesn't already start with a known country code
+      if (normalized && !result.countryCode) {
+        const withCC = defaultCC + normalized;
+        const retryResult = verifyPhone(withCC);
+        if (retryResult.valid) {
+          result = retryResult;
+          logger.debug('sms-engine.send', `Prepended default country code +${defaultCC} to ${normalized}`);
+        }
+      }
+    }
+
     if (result.valid) {
       verified.push(result);
     } else {
