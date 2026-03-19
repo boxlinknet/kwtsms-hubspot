@@ -357,7 +357,7 @@
       const ids = settings.available_sender_ids || [];
       document.getElementById('gw-senderids').textContent = ids.length > 0 ? ids.join(', ') : '-';
       const coverage = settings.coverage || [];
-      document.getElementById('gw-coverage').textContent = coverage.length > 0 ? coverage.length + ' countries' : '0 countries';
+      document.getElementById('gw-coverage').textContent = coverage.length > 0 ? coverage.join(', ') : 'None';
 
       const select = document.getElementById('select-senderid');
       select.replaceChildren();
