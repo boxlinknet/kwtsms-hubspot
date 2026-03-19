@@ -1,5 +1,12 @@
 # kwtSMS for HubSpot
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js](https://img.shields.io/badge/Node.js-18%2B-green.svg)](https://nodejs.org/)
+[![HubSpot](https://img.shields.io/badge/HubSpot-2025.2-orange.svg)](https://developers.hubspot.com/)
+[![kwtSMS](https://img.shields.io/badge/kwtSMS-Gateway-blue.svg)](https://www.kwtsms.com/)
+[![Platform](https://img.shields.io/badge/Platform-HubSpot%20Marketplace-ff7a59.svg)](https://ecosystem.hubspot.com/marketplace/apps)
+[![Tests](https://img.shields.io/badge/Tests-62%20passing-brightgreen.svg)](#)
+
 SMS notifications for HubSpot CRM powered by [kwtSMS](https://www.kwtsms.com) gateway.
 
 Send one-way A2P SMS messages to your HubSpot contacts when CRM events occur, such as deal stage changes, new contacts, or ticket updates.
