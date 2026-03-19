@@ -6,13 +6,14 @@
  * Related files:
  *   - ../services/sms-engine.js: send orchestrator
  *   - ../middleware/auth.js: HubSpot signature verification
- *   - ../../src/app/workflow-actions/workflow-actions-hsmeta.json: action definition
+ *   - ../services/hubspot.js: HubSpot API helper
  */
 
 const express = require('express');
 const router = express.Router();
 const { send } = require('../services/sms-engine');
 const { verifyHubSpotSignature } = require('../middleware/auth');
+const { getContactProperty } = require('../services/hubspot');
 
 // Apply HubSpot signature verification to all workflow action routes
 router.use(verifyHubSpotSignature);
@@ -21,11 +22,8 @@ router.use(verifyHubSpotSignature);
  * POST /api/workflow-action/send-sms
  * Called by HubSpot when a workflow with "Send SMS via kwtSMS" action executes.
  *
- * HubSpot sends a payload with:
- *   - callbackId: unique execution ID
- *   - origin.portalId: HubSpot account ID
- *   - object.objectId: enrolled CRM object ID (e.g., contact ID)
- *   - inputFields: user-configured fields (phone_property, message, sender_id)
+ * HubSpot sends the selected property NAME (e.g., "mobilephone"), not the value.
+ * We must fetch the actual phone number from the contact record via HubSpot API.
  */
 router.post('/send-sms', async (req, res) => {
   try {
@@ -42,9 +40,22 @@ router.post('/send-sms', async (req, res) => {
 
     // Extract input fields
     const inputFields = payload.inputFields || payload.fields || {};
-    const phone = inputFields.phone_property || inputFields.phone || '';
     const message = inputFields.message || '';
-    const senderId = inputFields.sender_id || undefined;
+    const senderId = inputFields.sender_name || inputFields.sender_id || undefined;
+
+    // phone_number field uses OBJECT_PROPERTY - HubSpot resolves the actual value
+    // phone_property is the old deprecated static field (property name)
+    let phone = inputFields.phone_number || '';
+
+    // Fallback: if phone_number is empty but phone_property has a value,
+    // try to fetch from HubSpot API (backwards compatibility)
+    if (!phone && inputFields.phone_property) {
+      const contactId = String(payload.object?.objectId || '');
+      if (contactId) {
+        const value = await getContactProperty(portalId, contactId, inputFields.phone_property);
+        if (value) phone = value;
+      }
+    }
 
     if (!phone) {
       return res.status(200).json({

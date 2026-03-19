@@ -21,7 +21,16 @@
           ]
         },
         "supportedValueTypes": ["STATIC_VALUE"],
-        "isRequired": true
+        "isRequired": false
+      },
+      {
+        "typeDefinition": {
+          "name": "phone_number",
+          "type": "string",
+          "fieldType": "text"
+        },
+        "supportedValueTypes": ["OBJECT_PROPERTY"],
+        "isRequired": false
       },
       {
         "typeDefinition": {
@@ -62,13 +71,15 @@
         "actionDescription": "Send an SMS message to a contact using the kwtSMS gateway",
         "actionCardContent": "Send SMS to {{phone_property}}",
         "inputFieldLabels": {
-          "phone_property": "Phone number property",
+          "phone_property": "Phone property (deprecated)",
+          "phone_number": "Phone number",
           "message": "Message",
           "sender_id": "Sender ID (text, deprecated)",
           "sender_name": "Sender ID"
         },
         "inputFieldDescriptions": {
-          "phone_property": "Select which contact property contains the phone number",
+          "phone_property": "Deprecated, use Phone number field instead",
+          "phone_number": "Select the contact property that contains the phone number",
           "message": "The SMS message to send. Use personalization tokens like {{contact.firstname}}",
           "sender_id": "Leave empty, use Sender ID dropdown instead",
           "sender_name": "Select the sender ID for this SMS"
