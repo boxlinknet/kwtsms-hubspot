@@ -198,12 +198,18 @@
               <div id="gw-coverage" style="font-size:0.85rem;font-weight:600;margin-top:4px">0 countries</div>
             </div>
           </div>
-          <div class="form-group">
-            <label>Active Sender ID</label>
-            <select id="select-senderid"></select>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Default Country Code</label>
+              <select id="select-countrycode"></select>
+            </div>
+            <div class="form-group">
+              <label>Active Sender ID</label>
+              <select id="select-senderid"></select>
+            </div>
           </div>
           <div style="display:flex;gap:8px">
-            <button class="btn btn-primary btn-sm" id="btn-save-sender">Save Sender ID</button>
+            <button class="btn btn-primary btn-sm" id="btn-save-settings">Save</button>
             <button class="btn btn-secondary btn-sm" id="btn-reload">Reload</button>
             <button class="btn btn-danger btn-sm" id="btn-logout">Logout</button>
           </div>
@@ -385,6 +391,17 @@
       } else {
         select.appendChild(el('option', { value: 'KWT-SMS', textContent: 'KWT-SMS (test only)' }));
       }
+
+      const ccSelect = document.getElementById('select-countrycode');
+      ccSelect.replaceChildren();
+      ccSelect.appendChild(el('option', { value: '', textContent: 'None (require full number)' }));
+      if (coverage.length > 0) {
+        coverage.forEach(code => {
+          const opt = el('option', { value: code, textContent: '+' + code });
+          if (code === settings.default_country_code) opt.selected = true;
+          ccSelect.appendChild(opt);
+        });
+      }
     }
   }
 
@@ -434,10 +451,11 @@
     loadDashboard();
   }
 
-  async function saveSenderId() {
+  async function saveGatewaySettings() {
     const senderId = document.getElementById('select-senderid').value;
-    await api('/api/settings/' + PORTAL_ID, { method: 'POST', body: JSON.stringify({ sender_id: senderId }) });
-    showAlert('success', 'Sender ID updated to ' + senderId);
+    const countryCode = document.getElementById('select-countrycode').value;
+    await api('/api/settings/' + PORTAL_ID, { method: 'POST', body: JSON.stringify({ sender_id: senderId, default_country_code: countryCode }) });
+    showAlert('success', 'Settings saved: Sender ID=' + senderId + (countryCode ? ', Country=+' + countryCode : ''));
   }
 
   // Logs
@@ -494,7 +512,7 @@
   document.getElementById('toggle-testmode').addEventListener('click', () => toggleSetting('test_mode'));
   document.getElementById('toggle-debug').addEventListener('click', () => toggleSetting('debug_logging'));
   document.getElementById('btn-login').addEventListener('click', gatewayLogin);
-  document.getElementById('btn-save-sender').addEventListener('click', saveSenderId);
+  document.getElementById('btn-save-settings').addEventListener('click', saveGatewaySettings);
   document.getElementById('btn-reload').addEventListener('click', reloadGateway);
   document.getElementById('btn-logout').addEventListener('click', gatewayLogout);
   document.getElementById('btn-clear-logs').addEventListener('click', clearLogs);

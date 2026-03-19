@@ -37,7 +37,7 @@ router.get('/', (req, res) => {
  * Update settings (excluding credentials, use /login for that).
  */
 router.post('/', (req, res) => {
-  const allowed = ['sender_id', 'gateway_enabled', 'test_mode', 'debug_logging'];
+  const allowed = ['sender_id', 'gateway_enabled', 'test_mode', 'debug_logging', 'default_country_code'];
   const data = {};
   for (const key of allowed) {
     if (req.body[key] !== undefined) {

@@ -77,6 +77,10 @@ function upsertSettings(portalId, data) {
       fields.push('sender_id = ?');
       values.push(data.sender_id);
     }
+    if (data.default_country_code !== undefined) {
+      fields.push('default_country_code = ?');
+      values.push(data.default_country_code);
+    }
     if (data.available_sender_ids !== undefined) {
       fields.push('available_sender_ids = ?');
       values.push(JSON.stringify(data.available_sender_ids));
