@@ -217,7 +217,7 @@
       </div>
       <div class="panel" id="test-sms-panel" style="display:none">
         <h2>Test SMS</h2>
-        <p style="font-size:0.85rem;color:var(--muted);margin-bottom:12px">Send a test message to verify your gateway is working. Uses test mode (no delivery, no credits).</p>
+        <p style="font-size:0.85rem;color:var(--muted);margin-bottom:12px">Send a message to verify your gateway. Respects the Test Mode toggle above: if ON, message is not delivered; if OFF, message is sent live.</p>
         <div class="form-row">
           <div class="form-group"><label>Phone Number</label><input type="text" id="test-phone" placeholder="96598765432"></div>
           <div class="form-group"><label>Message</label><input type="text" id="test-message"></div>
@@ -473,16 +473,18 @@
     const message = document.getElementById('test-message').value;
     if (!phone) { showAlert('danger', 'Enter a phone number'); return; }
     const resultDiv = document.getElementById('test-sms-result');
-    resultDiv.replaceChildren(el('span', { style: 'color:var(--muted)', textContent: 'Sending...' }));
-    const result = await api('/api/sms/test', {
+    const mode = settings.test_mode ? 'TEST MODE' : 'LIVE';
+    resultDiv.replaceChildren(el('span', { style: 'color:var(--muted)', textContent: 'Sending (' + mode + ')...' }));
+    const result = await api('/api/sms/send', {
       method: 'POST',
       headers: { 'X-Portal-Id': PORTAL_ID },
-      body: JSON.stringify({ phone, message })
+      body: JSON.stringify({ phone, message, source: 'admin_test' })
     });
     if (result.success) {
-      resultDiv.replaceChildren(el('div', { className: 'alert alert-success', textContent: 'Test SMS sent successfully (test mode, not delivered)' }));
+      const msg = settings.test_mode ? 'SMS sent in test mode (not delivered to handset)' : 'SMS sent LIVE to ' + phone;
+      resultDiv.replaceChildren(el('div', { className: 'alert alert-success', textContent: msg }));
     } else {
-      resultDiv.replaceChildren(el('div', { className: 'alert alert-danger', textContent: result.error || 'Failed to send test SMS' }));
+      resultDiv.replaceChildren(el('div', { className: 'alert alert-danger', textContent: result.error || 'Failed to send SMS' }));
     }
   }
 
