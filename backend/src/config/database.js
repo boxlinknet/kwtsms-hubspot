@@ -1,7 +1,6 @@
 /**
- * SQLite database initialization using better-sqlite3.
- * Creates database file and runs migrations on first use.
- * Uses WAL mode for better concurrent read performance.
+ * SQLite database initialization using sql.js (pure JavaScript, no native deps).
+ * API wrapper provides better-sqlite3-compatible interface.
  *
  * Related files:
  *   - ../migrations/001_initial_schema.js: table definitions
@@ -9,53 +8,135 @@
  *   - encryption.js: credential encryption
  */
 
-const Database = require('better-sqlite3');
+const initSqlJs = require('sql.js');
 const path = require('node:path');
 const fs = require('node:fs');
 
 let db = null;
+let dbPath = null;
+let sqljs = null;
+
+/**
+ * Save database to disk. Called after every write operation.
+ */
+function saveToDisk() {
+  if (db && dbPath) {
+    const data = db.export();
+    const buffer = Buffer.from(data);
+    fs.writeFileSync(dbPath, buffer);
+  }
+}
+
+/**
+ * Wrapper that mimics better-sqlite3's prepare().run/all/get API.
+ */
+function createWrapper(database) {
+  const wrapper = {
+    prepare(sql) {
+      return {
+        run(...params) {
+          database.run(sql, params);
+          saveToDisk();
+          const changes = database.getRowsModified();
+          const info = database.exec("SELECT last_insert_rowid() as id");
+          const lastId = info.length > 0 ? info[0].values[0][0] : 0;
+          return { changes, lastInsertRowid: lastId };
+        },
+        get(...params) {
+          const stmt = database.prepare(sql);
+          stmt.bind(params);
+          if (stmt.step()) {
+            const row = stmt.getAsObject();
+            stmt.free();
+            return row;
+          }
+          stmt.free();
+          return undefined;
+        },
+        all(...params) {
+          const results = [];
+          const stmt = database.prepare(sql);
+          stmt.bind(params);
+          while (stmt.step()) {
+            results.push(stmt.getAsObject());
+          }
+          stmt.free();
+          return results;
+        }
+      };
+    },
+    pragma(val) {
+      try { database.run('PRAGMA ' + val); } catch (e) { /* ignore pragma errors */ }
+    },
+    transaction(fn) {
+      return function() {
+        database.run('BEGIN TRANSACTION');
+        try {
+          fn();
+          database.run('COMMIT');
+          saveToDisk();
+        } catch (e) {
+          database.run('ROLLBACK');
+          throw e;
+        }
+      };
+    },
+    close() {
+      saveToDisk();
+      database.close();
+    }
+  };
+  return wrapper;
+}
 
 /**
  * Initialize and return the database connection.
- * Creates the data directory and database file if needed.
- * Runs migrations on startup.
- *
- * @param {string} [dbPath] - override database path (for testing)
- * @returns {Database} better-sqlite3 instance
+ * @param {string} [overridePath] - override database path (for testing)
+ * @returns {object} database wrapper with prepare/pragma/transaction/close
  */
-function getDatabase(dbPath) {
+async function initDatabase(overridePath) {
   if (db) return db;
 
-  const resolvedPath = dbPath || process.env.DATABASE_PATH || path.join(__dirname, '../../data/kwtsms.db');
+  dbPath = overridePath || process.env.DATABASE_PATH || path.join(__dirname, '../../data/kwtsms.db');
 
-  // Ensure directory exists
-  const dir = path.dirname(resolvedPath);
+  const dir = path.dirname(dbPath);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 
-  db = new Database(resolvedPath);
+  if (!sqljs) {
+    sqljs = await initSqlJs();
+  }
 
-  // Enable WAL mode for better concurrent reads
+  if (fs.existsSync(dbPath)) {
+    const fileBuffer = fs.readFileSync(dbPath);
+    db = createWrapper(new sqljs.Database(fileBuffer));
+  } else {
+    db = createWrapper(new sqljs.Database());
+  }
+
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
 
-  // Run migrations
   runMigrations(db);
+  return db;
+}
 
+/**
+ * Get database synchronously (must call initDatabase first).
+ * @returns {object}
+ */
+function getDatabase() {
+  if (!db) {
+    throw new Error('Database not initialized. Call initDatabase() first.');
+  }
   return db;
 }
 
 /**
  * Run all pending migrations.
- * Uses a simple migrations table to track what has run.
- *
- * @param {Database} database
  */
 function runMigrations(database) {
-  // Create migrations tracking table
-  // Note: database.exec() here is better-sqlite3's SQL execution method,
-  // not child_process.exec(). It runs parameterized SQL safely.
   database.prepare(`
     CREATE TABLE IF NOT EXISTS _migrations (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -64,7 +145,6 @@ function runMigrations(database) {
     )
   `).run();
 
-  // Load and run migrations
   const migrationsDir = path.join(__dirname, '../migrations');
   if (!fs.existsSync(migrationsDir)) return;
 
@@ -78,20 +158,15 @@ function runMigrations(database) {
 
   for (const file of files) {
     if (applied.has(file)) continue;
-
     const migration = require(path.join(migrationsDir, file));
     database.transaction(() => {
       migration.up(database);
       database.prepare('INSERT INTO _migrations (name) VALUES (?)').run(file);
     })();
-
     console.log(`Migration applied: ${file}`);
   }
 }
 
-/**
- * Close the database connection. Used in tests and shutdown.
- */
 function closeDatabase() {
   if (db) {
     db.close();
@@ -99,4 +174,4 @@ function closeDatabase() {
   }
 }
 
-module.exports = { getDatabase, closeDatabase };
+module.exports = { initDatabase, getDatabase, closeDatabase };

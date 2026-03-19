@@ -15,7 +15,7 @@ const express = require('express');
 const path = require('node:path');
 const helmet = require('helmet');
 const cors = require('cors');
-const { getDatabase } = require('./config/database');
+const { initDatabase } = require('./config/database');
 const { sanitizeMiddleware } = require('./middleware/sanitize');
 const { requirePortalId } = require('./middleware/auth');
 const { errorHandler } = require('./middleware/error-handler');
@@ -24,9 +24,6 @@ const { startDailySync } = require('./jobs/daily-sync');
 const app = express();
 const PORT = process.env.PORT || 3001;
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3001';
-
-// Initialize database (runs migrations)
-getDatabase();
 
 // CORS: restrict to known origins
 const allowedOrigins = [
@@ -40,7 +37,6 @@ if (process.env.NODE_ENV !== 'production') {
 
 app.use(cors({
   origin(origin, callback) {
-    // Allow requests with no origin (server-to-server, curl, mobile)
     if (!origin) return callback(null, true);
     if (allowedOrigins.some(o => origin.startsWith(o))) return callback(null, true);
     callback(null, false);
@@ -48,7 +44,6 @@ app.use(cors({
   credentials: true
 }));
 
-// Helmet with CSP allowing admin inline scripts only on /admin path
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -90,13 +85,20 @@ app.use('/api/sms', requirePortalId, require('./routes/sms'));
 // Global error handler (must be last)
 app.use(errorHandler);
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`kwtSMS HubSpot backend running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+// Initialize database (async) then start server
+async function start() {
+  await initDatabase();
 
-  // Start daily sync job
-  startDailySync();
+  app.listen(PORT, () => {
+    console.log(`kwtSMS HubSpot backend running on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    startDailySync();
+  });
+}
+
+start().catch(err => {
+  console.error('Failed to start:', err);
+  process.exit(1);
 });
 
 module.exports = app;
