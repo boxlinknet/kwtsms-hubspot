@@ -415,11 +415,12 @@
   }
 
   async function reloadGateway() {
-    const result = await api('/api/settings/' + PORTAL_ID + '/login', {
-      method: 'POST', body: JSON.stringify({ username: settings.kwtsms_username, password: settings.kwtsms_password })
-    }).catch(() => null);
-    // Since we can't read credentials from masked settings, use the sync endpoint instead
-    showAlert('success', 'Gateway data refreshed');
+    const result = await api('/api/settings/' + PORTAL_ID + '/sync', { method: 'POST' });
+    if (result.success) {
+      showAlert('success', 'Balance: ' + result.balance + ', Sender IDs: ' + result.senderIds?.length + ', Coverage: ' + (result.coverage?.length || 0) + ' countries');
+    } else {
+      showAlert('danger', result.error || 'Sync failed');
+    }
     loadSettings();
     loadDashboard();
   }

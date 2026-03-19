@@ -99,4 +99,27 @@ router.post('/login', async (req, res) => {
   }
 });
 
+/**
+ * POST /api/settings/:portalId/sync
+ * Reload balance, sender IDs, and coverage using stored credentials.
+ */
+router.post('/sync', async (req, res) => {
+  const settings = require('../models/settings').getSettings(req.portalId);
+  if (!settings || !settings.kwtsms_username) {
+    return res.status(400).json({ error: 'Gateway not configured' });
+  }
+
+  const result = await loginAndSync(req.portalId, settings.kwtsms_username, settings.kwtsms_password);
+  if (result.success) {
+    res.json({
+      success: true,
+      balance: result.balance,
+      senderIds: result.senderIds,
+      coverage: result.coverage
+    });
+  } else {
+    res.status(400).json({ success: false, error: 'Sync failed' });
+  }
+});
+
 module.exports = router;
