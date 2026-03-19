@@ -40,3 +40,6 @@ docker/
 *.zip
 napkin.md
 .playwright-cli/
+playwright-report/
+test-results/
+playwright/.cache/
