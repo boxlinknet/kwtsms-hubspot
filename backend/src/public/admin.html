@@ -210,7 +210,7 @@
           <button class="btn btn-danger btn-sm" onclick="clearLogs()">Clear All</button>
         </div>
         <table class="log-table">
-          <thead><tr><th>Time</th><th>Phone</th><th>Message</th><th>Status</th><th>Credits</th></tr></thead>
+          <thead><tr><th>Time</th><th>Phone</th><th>Message</th><th>Credits</th><th>Status</th></tr></thead>
           <tbody id="sms-logs"></tbody>
         </table>
       </div>
@@ -428,8 +428,8 @@
           el('td', { textContent: new Date(l.created_at).toLocaleString() }),
           el('td', { textContent: l.recipient_phone }),
           el('td', { textContent: msgPreview }),
-          el('td', {}, [el('span', { className: 'badge ' + statusClass, textContent: l.status })]),
-          el('td', { textContent: String(l.points_charged || 0) })
+          el('td', { textContent: String(l.points_charged || 0) }),
+          el('td', {}, [el('span', { className: 'badge ' + statusClass, textContent: l.status })])
         ]));
       });
     } else {
