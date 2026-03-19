@@ -315,8 +315,8 @@
     // Gateway badges (safe DOM creation)
     const badges = document.getElementById('gateway-badges');
     badges.replaceChildren(
-      el('span', { className: 'badge ' + (gw.connected ? 'badge-success' : 'badge-danger'), textContent: gw.connected ? 'Connected' : 'Disconnected' }),
       el('span', { className: 'badge ' + (gw.enabled ? 'badge-success' : 'badge-danger'), textContent: gw.enabled ? 'Enabled' : 'Disabled' }),
+      el('span', { className: 'badge ' + (gw.connected ? 'badge-success' : 'badge-danger'), textContent: gw.connected ? 'Connected' : 'Disconnected' }),
       el('span', { className: 'badge ' + (gw.testMode ? 'badge-warning' : 'badge-success'), textContent: gw.testMode ? 'Test Mode' : 'Live' })
     );
 
