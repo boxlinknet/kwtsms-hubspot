@@ -180,7 +180,7 @@
             <div class="form-group"><label>API Username</label><input type="text" id="input-username" placeholder="Your kwtSMS API username"></div>
             <div class="form-group"><label>API Password</label><input type="password" id="input-password" placeholder="Your kwtSMS API password"></div>
           </div>
-          <button class="btn btn-primary" onclick="gatewayLogin()">Login</button>
+          <button class="btn btn-primary" id="btn-login">Login</button>
         </div>
         <!-- Connected view (shown after login) -->
         <div id="gateway-connected" style="display:none">
@@ -203,17 +203,17 @@
             <select id="select-senderid"></select>
           </div>
           <div style="display:flex;gap:8px">
-            <button class="btn btn-primary btn-sm" onclick="saveSenderId()">Save Sender ID</button>
-            <button class="btn btn-secondary btn-sm" onclick="reloadGateway()">Reload</button>
-            <button class="btn btn-danger btn-sm" onclick="gatewayLogout()">Logout</button>
+            <button class="btn btn-primary btn-sm" id="btn-save-sender">Save Sender ID</button>
+            <button class="btn btn-secondary btn-sm" id="btn-reload">Reload</button>
+            <button class="btn btn-danger btn-sm" id="btn-logout">Logout</button>
           </div>
         </div>
       </div>
       <div class="panel" id="general-settings" style="display:none">
         <h2>General Settings</h2>
-        <div class="toggle-group"><div class="toggle" id="toggle-enabled" onclick="toggleSetting('gateway_enabled')"></div><span>Gateway Enabled</span></div>
-        <div class="toggle-group"><div class="toggle on" id="toggle-testmode" onclick="toggleSetting('test_mode')"></div><span>Test Mode</span></div>
-        <div class="toggle-group"><div class="toggle" id="toggle-debug" onclick="toggleSetting('debug_logging')"></div><span>Debug Logging</span></div>
+        <div class="toggle-group"><div class="toggle" id="toggle-enabled"></div><span>Gateway Enabled</span></div>
+        <div class="toggle-group"><div class="toggle on" id="toggle-testmode"></div><span>Test Mode</span></div>
+        <div class="toggle-group"><div class="toggle" id="toggle-debug"></div><span>Debug Logging</span></div>
       </div>
     </div>
 
@@ -229,7 +229,7 @@
       <div class="panel" style="border-color:var(--danger);border-width:2px">
         <h2 style="color:var(--danger)">Danger Zone</h2>
         <p style="font-size:0.85rem;color:var(--muted);margin-bottom:12px">Permanently delete all SMS logs for this portal. This action cannot be undone. All delivery history, message records, and send statistics will be lost.</p>
-        <button class="btn btn-danger btn-sm" onclick="clearLogs()">Delete All Logs</button>
+        <button class="btn btn-danger btn-sm" id="btn-clear-logs">Delete All Logs</button>
       </div>
     </div>
 
@@ -458,6 +458,16 @@
     showAlert('success', 'Logs cleared');
     loadLogs();
   }
+
+  // Event listeners (no inline onclick)
+  document.getElementById('toggle-enabled').addEventListener('click', () => toggleSetting('gateway_enabled'));
+  document.getElementById('toggle-testmode').addEventListener('click', () => toggleSetting('test_mode'));
+  document.getElementById('toggle-debug').addEventListener('click', () => toggleSetting('debug_logging'));
+  document.getElementById('btn-login').addEventListener('click', gatewayLogin);
+  document.getElementById('btn-save-sender').addEventListener('click', saveSenderId);
+  document.getElementById('btn-reload').addEventListener('click', reloadGateway);
+  document.getElementById('btn-logout').addEventListener('click', gatewayLogout);
+  document.getElementById('btn-clear-logs').addEventListener('click', clearLogs);
 
   loadDashboard();
   loadSettings();
