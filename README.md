@@ -59,7 +59,7 @@ To register a Sender ID, visit [kwtsms.com/sender-id-help.html](https://www.kwts
 
 - Email: support@kwtsms.com
 - Support Center: [kwtsms.com/support.html](https://www.kwtsms.com/support.html)
-- FAQ: [kwtsms.com/faq_all.php](https://www.kwtsms.com/faq_all.php)
+- FAQ: [kwtsms.com/faq/](https://www.kwtsms.com/faq/)
 - Developer Docs: [kwtsms.com/developers.html](https://www.kwtsms.com/developers.html)
 
 ## License
