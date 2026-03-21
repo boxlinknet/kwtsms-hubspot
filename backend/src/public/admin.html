@@ -494,8 +494,8 @@
   async function sendTestSms() {
     const phone = document.getElementById('test-phone').value;
     const message = document.getElementById('test-message').value;
-    if (!phone) { showAlert('danger', 'Enter a phone number'); return; }
     const resultDiv = document.getElementById('test-sms-result');
+    if (!phone) { resultDiv.replaceChildren(el('div', { className: 'alert alert-danger', textContent: 'Enter a phone number' })); return; }
     const mode = settings.test_mode ? 'TEST MODE' : 'LIVE';
     resultDiv.replaceChildren(el('span', { style: 'color:var(--muted)', textContent: 'Sending (' + mode + ')...' }));
     const result = await api('/api/sms/send', {
