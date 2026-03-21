@@ -33,13 +33,27 @@ backend/data/
 .claude/
 CLAUDE.md
 docs/
+test/
 tests/
 .worktrees/
 docker/
 *.log
 *.zip
 napkin.md
+
+# Playwright
 .playwright-cli/
+.playwright/
 playwright-report/
 test-results/
 playwright/.cache/
+
+# Superpowers
+.superpowers/
+
+# Misc
+*.tgz
+*.tar.gz
+coverage/
+.nyc_output/
+tmp/
