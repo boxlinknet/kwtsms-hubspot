@@ -349,10 +349,10 @@
     const badges = document.getElementById('gateway-badges');
     const syncText = gw.lastSync ? new Date(gw.lastSync).toLocaleString() : 'Never';
     badges.replaceChildren(
-      el('span', { className: 'badge ' + (gw.enabled ? 'badge-success' : 'badge-danger'), textContent: gw.enabled ? 'SMS Enabled' : 'SMS Disabled' }),
-      el('span', { className: 'badge ' + (gw.connected ? 'badge-success' : 'badge-danger'), textContent: gw.connected ? 'Gateway Connected' : 'Gateway Disconnected' }),
-      el('span', { className: 'badge ' + (gw.testMode ? 'badge-danger' : 'badge-success'), textContent: gw.testMode ? 'Test Mode ON' : 'Test Mode OFF' }),
-      el('span', { className: 'badge badge-warning', textContent: gw.senderId || 'KWT-SMS' }),
+      el('span', { className: 'badge ' + (gw.enabled ? 'badge-success' : 'badge-danger'), textContent: 'SMS: ' + (gw.enabled ? 'Enabled' : 'Disabled') }),
+      el('span', { className: 'badge ' + (gw.connected ? 'badge-success' : 'badge-danger'), textContent: 'Gateway: ' + (gw.connected ? 'Connected' : 'Disconnected') }),
+      el('span', { className: 'badge ' + (gw.testMode ? 'badge-danger' : 'badge-success'), textContent: 'Test Mode: ' + (gw.testMode ? 'ON' : 'OFF') }),
+      el('span', { className: 'badge badge-warning', textContent: 'Sender ID: ' + (gw.senderId || 'KWT-SMS') }),
       el('span', { className: 'badge', style: 'background:#e9ecef;color:var(--muted)', textContent: 'Sync: ' + syncText })
     );
   }
