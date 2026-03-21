@@ -164,10 +164,7 @@
         <div class="stat-card"><div class="value" id="stat-month">0</div><div class="label">This Month</div></div>
       </div>
       <div class="panel">
-        <h2>Gateway Status</h2>
-        <div id="gateway-badges" style="display:flex;gap:8px;margin-bottom:12px"></div>
-        <p><strong>Sender ID:</strong> <span id="dash-senderid"></span></p>
-        <p><strong>Last Sync:</strong> <span id="dash-lastsync"></span></p>
+        <div id="gateway-badges" style="display:flex;gap:8px;flex-wrap:wrap"></div>
       </div>
     </div>
 
@@ -350,14 +347,14 @@
 
     // Gateway badges (safe DOM creation)
     const badges = document.getElementById('gateway-badges');
+    const syncText = gw.lastSync ? new Date(gw.lastSync).toLocaleString() : 'Never';
     badges.replaceChildren(
-      el('span', { className: 'badge ' + (gw.enabled ? 'badge-success' : 'badge-danger'), textContent: gw.enabled ? 'Enabled' : 'Disabled' }),
-      el('span', { className: 'badge ' + (gw.connected ? 'badge-success' : 'badge-danger'), textContent: gw.connected ? 'Connected' : 'Disconnected' }),
-      el('span', { className: 'badge ' + (gw.testMode ? 'badge-warning' : 'badge-success'), textContent: gw.testMode ? 'Test Mode' : 'Live' })
+      el('span', { className: 'badge ' + (gw.enabled ? 'badge-success' : 'badge-danger'), textContent: gw.enabled ? 'SMS Enabled' : 'SMS Disabled' }),
+      el('span', { className: 'badge ' + (gw.connected ? 'badge-success' : 'badge-danger'), textContent: gw.connected ? 'Gateway Connected' : 'Gateway Disconnected' }),
+      el('span', { className: 'badge ' + (gw.testMode ? 'badge-danger' : 'badge-success'), textContent: gw.testMode ? 'Test Mode ON' : 'Test Mode OFF' }),
+      el('span', { className: 'badge badge-warning', textContent: gw.senderId || 'KWT-SMS' }),
+      el('span', { className: 'badge', style: 'background:#e9ecef;color:var(--muted)', textContent: 'Sync: ' + syncText })
     );
-
-    document.getElementById('dash-senderid').textContent = gw.senderId || 'KWT-SMS';
-    document.getElementById('dash-lastsync').textContent = gw.lastSync ? new Date(gw.lastSync).toLocaleString() : 'Never';
   }
 
   // Settings
