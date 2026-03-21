@@ -346,10 +346,16 @@
     // Gateway badges (safe DOM creation)
     const badges = document.getElementById('gateway-badges');
     const syncText = gw.lastSync ? new Date(gw.lastSync).toLocaleString() : 'Never';
+    function dot(color) {
+      return el('span', { style: 'display:inline-block;width:8px;height:8px;border-radius:50%;background:' + color + ';margin-right:6px;flex-shrink:0' });
+    }
+    function pill(cls, dotColor, text) {
+      return el('span', { className: 'badge ' + cls, style: 'display:inline-flex;align-items:center' }, [dot(dotColor), text]);
+    }
     badges.replaceChildren(
-      el('span', { className: 'badge ' + (gw.enabled ? 'badge-success' : 'badge-danger'), textContent: 'SMS: ' + (gw.enabled ? 'Enabled' : 'Disabled') }),
-      el('span', { className: 'badge ' + (gw.connected ? 'badge-success' : 'badge-danger'), textContent: 'Gateway: ' + (gw.connected ? 'Connected' : 'Disconnected') }),
-      el('span', { className: 'badge ' + (gw.testMode ? 'badge-danger' : 'badge-success'), textContent: 'Test Mode: ' + (gw.testMode ? 'ON' : 'OFF') }),
+      pill(gw.enabled ? 'badge-success' : 'badge-danger', gw.enabled ? '#155724' : '#721c24', 'SMS: ' + (gw.enabled ? 'Enabled' : 'Disabled')),
+      pill(gw.connected ? 'badge-success' : 'badge-danger', gw.connected ? '#155724' : '#721c24', 'Gateway: ' + (gw.connected ? 'Connected' : 'Disconnected')),
+      pill(gw.testMode ? 'badge-danger' : 'badge-success', gw.testMode ? '#721c24' : '#155724', 'Test Mode: ' + (gw.testMode ? 'ON' : 'OFF')),
       el('span', { className: 'badge badge-warning', textContent: 'Sender ID: ' + (gw.senderId || 'KWT-SMS') }),
       el('span', { className: 'badge', style: 'background:#e9ecef;color:var(--muted)', textContent: 'Sync: ' + syncText })
     );
